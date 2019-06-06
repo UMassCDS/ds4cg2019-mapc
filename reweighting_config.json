@@ -1,0 +1,29 @@
+{
+  "tables": [
+    {
+      "name": "FirstTable",
+      "dims": [
+        {
+          "var": "AGEP",
+          "type": "NUM",
+          "conditions": [
+            "x <= 20",
+            "20 < x & x <= 40",
+            "40 < x & x <= 60",
+            "x > 60"
+          ]
+        },
+        {
+          "var": "WAGP",
+          "type": "NUM",
+          "conditions": [
+            "x <= 50000",
+            "x > 50000 & x <= 80000",
+            "x > 80000 & x <= 120000",
+            "x > 120000"
+          ]
+        }
+      ]
+    }
+  ]
+}
