@@ -59,10 +59,5 @@ gen_counts <- function(inp, base) {
     
     baseline <- mutate(baseline, TARGET=new_weights)
     print(baseline)
-    data.table::fwrite(baseline, file='./baseline.csv')
-
+    data.table::fwrite(baseline, file=base)
 }
-
-data = './data/ss16pma.csv'
-sfile = './FirstTable.csv'
-gen_counts(data, sfile)
