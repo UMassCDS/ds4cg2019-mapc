@@ -25,19 +25,18 @@ coln <- colnames(data)
 # function to generate counts from POP2016
 gen_counts <- function(inp, base) {
     # read the files
-    source <- data.table::fread(file=inp)
-    baseline <- data.table::fread(file=base, fill=TRUE)
-    cond <- read_rds("savefile.RData")
+    source <- data.table::fread(file=inp)   # input file containing the data
+    baseline <- data.table::fread(file=base, fill=TRUE) # input file containing the baseline matrices
+    cond <- read_rds("savefile.RData")  # .RData file
+
     # generate a list of variable names, number of variable conditions
     var_names <- c(cond[[1]][[3]])
     dim_vec <- cond[[1]][[2]]
-    # print(dim_vec)
     hvec <- get_hvec(dim_vec)
-    # print(hvec)
     num_dims <- length(dim_vec)
-    # print(index2coord(6))
     num_conds <- prod(dim_vec)
-    # print(num_conds)
+    
+    # generate the aggregate weights
     new_weights <- NULL
     for (i in 1:num_conds) {
         cd <- index2coord(i)
@@ -53,14 +52,12 @@ gen_counts <- function(inp, base) {
             
         }
         temp_s <- paste("source[", temp_s, "]")
-        # print(temp_s)
         temp_df <- eval(parse(text=temp_s))
         print(temp_df)
         weight_sum <- sum(temp_df$PWGTP)
-        # print(weight_sum)
         new_weights <- c(new_weights, weight_sum)
     }
-    # print(new_weights)
+    
     baseline <- mutate(baseline, TARGET=new_weights)
     print(baseline)
     data.table::fwrite(baseline, file='./baseline.csv')
