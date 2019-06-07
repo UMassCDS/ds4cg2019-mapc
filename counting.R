@@ -46,14 +46,13 @@ gen_counts <- function(inp, base) {
                 temp_s <- paste(temp_s, "&")
             }
             temp <- cond[[1]][[5]][[j]][[cd[[j]]]] %>%
-                str_replace("x", "source[[\"x\"]]") %>%
-                str_replace("x", var_names[[j]])
+                str_replace_all("x", "source[[\"x\"]]") %>%
+                str_replace_all("x", var_names[[j]])
             temp_s <- paste(temp_s, temp)
-            
         }
         temp_s <- paste("source[", temp_s, "]")
         temp_df <- eval(parse(text=temp_s))
-        print(temp_df)
+        # print(temp_df)
         weight_sum <- sum(temp_df$PWGTP)
         new_weights <- c(new_weights, weight_sum)
     }
@@ -64,6 +63,6 @@ gen_counts <- function(inp, base) {
 
 }
 
-data = './data/trial.csv'
+data = './data/ss16pma.csv'
 sfile = './FirstTable.csv'
 gen_counts(data, sfile)
