@@ -17,6 +17,20 @@ generator <- function(condition){ # Need to do this because R.
   return(ret)
 }
 
+get_hvec <- function(dim_vec){ # Get the helping vector for moving between coordinates and indices
+  num_dims <- length(dim_vec)
+  hvec <- vector(mode="numeric", length=num_dims)
+  for(i in seq(num_dims)){
+    if(i < num_dims){
+      hvec[i] <- prod(dim_vec[(i+1):num_dims])  # Component i of hvec denotes after how many indices that dimension changes value(condition)
+    }
+    else{   # i == num_dims
+      hvec[i] <- 1
+    }
+  }
+  return(hvec)
+}
+
 
 config_file <- "reweighting_config.json"
 
@@ -56,32 +70,44 @@ for(t in seq(num_tables)){
   
   # The following code will create a CSV file for the current table
   ivec <- vector(mode="numeric", length=num_dims) # Vector representing matrix coordinates for a number.
-  hvec <- vector(mode="numeric", length=num_dims) # Helping vector to convert a number to matrix coordinates.
   
-  for(i in seq(num_dims)){
-    if(i < num_dims){
-      hvec[i] <- prod(dim_vec[(i+1):num_dims])  # Component i of hvec corresponds to the number of rows it takes before that dimension changes value(condition)
+  hvec <- get_hvec(dim_vec) # Helping vector to convert a number to matrix coordinates.
+  
+  # The following 2 functions are for switching between indices and coordinates
+  # These functions will make use of dim_vec, ivec, hvec and num_dims objects created above
+  
+  index2coord <- function(index){ # Takes as input an index and outputs the coordinates as a vector
+    for(i in seq(num_dims)){
+      ivec[i] <- ceiling(index/hvec[i])
+      if(ivec[i] == 0){ ivec[i] <- dim_vec[i] } # This needs to be done because vectors are 1-indexed in R
+      index <- index %% hvec[i]
     }
+    return(ivec)
   }
-  hvec[num_dims] <- 1
+  
+  coord2index <- function(ivec){  # Takes as input the coordinates as a vector and outputs an index
+    index <- 1
+    for(i in seq(num_dims)){
+      if(ivec[i] > 1){
+        index <- index + (ivec[i]-1) * hvec[i]
+      }
+    }
+    return(index)
+  }
   
   total_rows <- prod(dim_vec)
   
-  tf <- paste(c(name, ".csv"), collapse="")
+  tf <- paste(c(name, ".csv"), collapse="") # Target file name
   
   header <- paste(unlist(var_names), collapse=",")
   header <- paste(c(header, "TARGET"), collapse=",")
   write(header, file=tf, append=FALSE)
   
   for(n in seq(total_rows)){
-    for(i in seq(num_dims)){
-      ivec[i] <- ceiling(n/hvec[i])
-      if(ivec[i] == 0){ ivec[i] <- dim_vec[i] } # This needs to be done because vectors are 1-indexed in R
-      n <- n %% hvec[i]
-    }
+    ivec <- index2coord(n)
     row <- vector(mode="character", length=num_dims)
-    for(di in seq(num_dims)){
-      row[di] <- conds[[di]][[ivec[di]]]
+    for(i in seq(num_dims)){
+      row[i] <- conds[[i]][[ivec[i]]]
     }
     row <- paste(row, collapse=",")
     write(row, file=tf, append=TRUE)
