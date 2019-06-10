@@ -3,6 +3,8 @@
 # This script is meant to process MAPC reweighting config files. Please see the README for the format of the config file.
 
 library(rjson)
+library(dplyr)
+library(data.table)
 
 generator <- function(condition){ # Need to do this because R.
   force(condition)
@@ -34,14 +36,20 @@ get_hvec <- function(dim_vec){ # Get the helping vector for moving between coord
 
 config_file <- "reweighting_config.json"
 
-data <- fromJSON(file=config_file)
+config <- fromJSON(file=config_file)
 
-num_tables <- length(data[["tables"]])
+num_tables <- length(config[["tables"]])
+
+file_name <- config[["file_name"]]
+target_var <- config[["target_var"]]
+
+data <- fread(file=file_name)
+
 
 save_list <- list()
 
 for(t in seq(num_tables)){
-  table <- data[["tables"]][[t]]
+  table <- config[["tables"]][[t]]
   name <- table[["name"]]
   dims <- table[["dims"]]
   num_dims <- length(dims)
@@ -95,7 +103,36 @@ for(t in seq(num_tables)){
     return(index)
   }
   
-  total_rows <- prod(dim_vec)
+  d <- data %>%
+    select(c(unlist(var_names), target_var)) %>%
+    as.matrix()
+  
+  ids <- apply(d, 1, function(row){ # For each row, find which index of the target matrix the weight is to be added to
+    for(i in seq(num_dims)){
+      for(j in seq(dim_vec[i])){
+        truth_val <- funcs[[i]][[j]](row[i])
+        if(!is.na(truth_val) & truth_val == TRUE){
+          ivec[i] <- j
+          break
+        }
+        else if(j == dim_vec[i]){
+          return(0)
+        }
+      }
+    }
+    index <- coord2index(ivec)
+    return(index)
+  })
+  
+  num_cells <- prod(dim_vec)  # Number of cells in the target matrix
+  target_vector <- vector(mode="numeric", length=num_cells)
+  
+  for(i in seq(length(ids))){
+    id <- ids[i]
+    if(id > 0){
+      target_vector[id] <- target_vector[id] + d[i, ncol(d)]  # Last column of d is target variable
+    }
+  }
   
   tf <- paste(c(name, ".csv"), collapse="") # Target file name
   
@@ -103,13 +140,13 @@ for(t in seq(num_tables)){
   header <- paste(c(header, "TARGET"), collapse=",")
   write(header, file=tf, append=FALSE)
   
-  for(n in seq(total_rows)){
+  for(n in seq(num_cells)){
     ivec <- index2coord(n)
     row <- vector(mode="character", length=num_dims)
     for(i in seq(num_dims)){
       row[i] <- conds[[i]][[ivec[i]]]
     }
-    row <- paste(row, collapse=",")
+    row <- paste(c(row, target_vector[n]), collapse=",")
     write(row, file=tf, append=TRUE)
   }
   
@@ -123,5 +160,8 @@ for(t in seq(num_tables)){
   
   save_list[[t]] <- new_list
 }
+
+save_list[["file_name"]] <- file_name
+save_list[["target_var"]] <- target_var
 
 saveRDS(save_list, file="savefile.RData")
