@@ -26,19 +26,6 @@
           ]
         }
       ]
-    },
-    {
-      "name": "SecondTable",
-      "dims": [
-        {
-          "var": "SEX",
-          "type": "NUM",
-          "conditions": [
-            "x == 1",
-            "x == 2"
-          ]
-        }
-      ]
     }
   ]
 }

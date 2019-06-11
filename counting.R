@@ -20,7 +20,7 @@ source("read_config.R")
 
 # generate the column names for the data
 coln <- colnames(data)
-print(coln) 
+# print(coln) 
 
 # function to generate counts from POP2016
 gen_counts <- function(inp, base) {
@@ -29,7 +29,6 @@ gen_counts <- function(inp, base) {
     source <- data.table::fread(file=inp)   # input file containing the data
     baseline <- data.table::fread(file=base, fill=TRUE) # input file containing the baseline matrices
     cond <- read_rds("savefile.RData")  # .RData file
-
     # generate a list of variable names, number of variable conditions
     start_time <- Sys.time()
     var_names <- c(cond[[1]][[3]])
@@ -54,7 +53,9 @@ gen_counts <- function(inp, base) {
         }
         temp_s <- paste("source[", temp_s, "]")
         temp_df <- eval(parse(text=temp_s))
-        weight_sum <- sum(temp_df$PWGTP)
+        w_string <- paste("sum(temp_df$", cond["target_var"],")")
+        # print(w_string)
+        weight_sum <- eval(parse(text=w_string))
         new_weights <- c(new_weights, weight_sum)
     }
     end_time <- Sys.time()
@@ -66,4 +67,4 @@ gen_counts <- function(inp, base) {
     data.table::fwrite(baseline, file=base)
 }
 
-gen_counts("./data/ss16pma.csv", "FirstTable.csv")
+gen_counts("ss16pma.csv", "FirstTable.csv")
