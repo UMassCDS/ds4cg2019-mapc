@@ -20,7 +20,7 @@ source("read_config.R")
 
 # generate the column names for the data
 coln <- colnames(data)
-# print(coln) 
+print(coln) 
 
 # function to generate counts from POP2016
 gen_counts <- function(inp, base) {

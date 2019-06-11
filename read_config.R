@@ -45,7 +45,6 @@ target_var <- config[["target_var"]]
 
 data <- fread(file=file_name)
 
-
 save_list <- list()
 
 for(t in seq(num_tables)){
