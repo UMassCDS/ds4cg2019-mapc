@@ -1,10 +1,10 @@
+# need to update to use new read_config format (filename and target var)
 # load libraries
 library(dplyr)
 library(readr)
 library(stringr)
 library(data.table)
 library(itertools)
-
 # import custom functions
 source("read_config.R")
 
@@ -24,12 +24,14 @@ coln <- colnames(data)
 
 # function to generate counts from POP2016
 gen_counts <- function(inp, base) {
+
     # read the files
     source <- data.table::fread(file=inp)   # input file containing the data
     baseline <- data.table::fread(file=base, fill=TRUE) # input file containing the baseline matrices
     cond <- read_rds("savefile.RData")  # .RData file
 
     # generate a list of variable names, number of variable conditions
+    start_time <- Sys.time()
     var_names <- c(cond[[1]][[3]])
     dim_vec <- cond[[1]][[2]]
     hvec <- get_hvec(dim_vec)
@@ -52,12 +54,16 @@ gen_counts <- function(inp, base) {
         }
         temp_s <- paste("source[", temp_s, "]")
         temp_df <- eval(parse(text=temp_s))
-        # print(temp_df)
         weight_sum <- sum(temp_df$PWGTP)
         new_weights <- c(new_weights, weight_sum)
     }
-    
+    end_time <- Sys.time()
+    time <- end_time - start_time
+    print(paste("Time: ", time))
+
     baseline <- mutate(baseline, TARGET=new_weights)
     print(baseline)
     data.table::fwrite(baseline, file=base)
 }
+
+gen_counts("./data/ss16pma.csv", "FirstTable.csv")
