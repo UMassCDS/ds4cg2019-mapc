@@ -4,9 +4,7 @@ library(dplyr)
 
 calc_objective <- function(table) {
 
-    # print(base$TARGET)
-    # print(target$TARGET)
-
+    num_cols <- length(table)
     base_vec <- table$INTER
     target_vec <- table$TARGET 
     objective <- sqrt(sum((base_vec - target_vec) ** 2))
