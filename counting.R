@@ -72,5 +72,3 @@ gen_counts <- function(inp, base) {
         data.table::fwrite(baseline, file=base[[t]])
     }
 }
-
-gen_counts("ss16pma.csv", c("FirstTable.csv", "SecondTable.csv"))
