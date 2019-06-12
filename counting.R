@@ -19,7 +19,7 @@ gen_counts <- function(inp, base) {
     # read the files
     source <- data.table::fread(file=inp)   # input file containing the data
     cond <- read_rds("savefile.RData")  # .RData file
-
+    
     for (t in seq_along(base)){
         baseline <- data.table::fread(file=base[[t]], fill=TRUE) # input file containing the baseline matrices
         # generate a list of variable names, number of variable conditions
