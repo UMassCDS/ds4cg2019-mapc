@@ -45,6 +45,7 @@ target_var <- config[["target_var"]]
 
 data <- fread(file=file_name)
 
+
 save_list <- list()
 
 for(t in seq(num_tables)){
@@ -136,7 +137,7 @@ for(t in seq(num_tables)){
   tf <- paste(c(name, ".csv"), collapse="") # Target file name
   
   header <- paste(unlist(var_names), collapse=",")
-  header <- paste(c(header, "TARGET"), collapse=",")
+  header <- paste(c(header, "BASELINE", "TARGET"), collapse=",")
   write(header, file=tf, append=FALSE)
   
   for(n in seq(num_cells)){
@@ -145,7 +146,7 @@ for(t in seq(num_tables)){
     for(i in seq(num_dims)){
       row[i] <- conds[[i]][[ivec[i]]]
     }
-    row <- paste(c(row, target_vector[n]), collapse=",")
+    row <- paste(c(row, target_vector[n], target_vector[n]), collapse=",")
     write(row, file=tf, append=TRUE)
   }
   
