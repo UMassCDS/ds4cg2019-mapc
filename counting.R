@@ -13,15 +13,18 @@ source("conversion.R")
 # list.files()
 
 # function to generate counts from data table
-# inp: Input CSV file 
-# base: Base Matrix CSV file
-gen_counts <- function(inp, base) {
+# inp: Input CSV object
+# base: Base Matrix CSV object
+# conditions: .RData savefile created by read_config.R
+gen_counts <- function(inp, tables, conditions) {
     # read the files
-    source <- data.table::fread(file=inp)   # input file containing the data
-    cond <- read_rds("savefile.RData")  # .RData file
+    # source <- data.table::fread(file=inp)   # input file containing the data
+    source <- inp   # input data table
+    cond <- conditions  # .RData savefile
     # iterate through the different tables
-    for (t in seq_along(base)){
-        baseline <- data.table::fread(file=base[[t]], fill=TRUE) # input file containing the baseline matrices
+    for (t in seq_along(tables)){
+        # baseline <- data.table::fread(file=base[[t]], fill=TRUE) # input file containing the baseline matrices
+        baseline <- tables[[t]]
         # generate a list of variable names, number of variable conditions
         start_time <- Sys.time()
         var_names <- c(cond[[t]][[3]])  # list of variable names
@@ -52,9 +55,10 @@ gen_counts <- function(inp, base) {
             }
             # wrap the string with the original data table name
             temp_s <- paste("source[", temp_s, "]")
-            # print(temp_s)
+            print(temp_s)
             # evaluate the string to generate the subset of the data table
             temp_df <- eval(parse(text=temp_s))
+            head(temp_df)
             # generate a string to examine the target variable type
             w_string <- paste("sum(temp_df$", cond["target_var"],")")
             # print(w_string)
@@ -69,6 +73,6 @@ gen_counts <- function(inp, base) {
         # generate the baseline matrix
         baseline <- mutate(baseline, INTER=new_weights)
         # write the baseline matrix to a csv file
-        data.table::fwrite(baseline, file=base[[t]])
+        # data.table::fwrite(baseline, file=base[[t]])
     }
 }
