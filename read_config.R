@@ -157,7 +157,8 @@ for(t in seq(num_tables)){
   new_list[[4]] <- var_types
   new_list[[5]] <- conds
   new_list[[6]] <- funcs
-  
+  new_list[[7]] <- ids    # Indices of the input CSV rows into the target vector
+    
   save_list[[t]] <- new_list
 }
 
