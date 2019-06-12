@@ -2,13 +2,12 @@
 library(data.table)
 library(dplyr)
 
-calc_objective <- function(table) {
+calc_objective <- function(target, baseline) {
 
-    num_cols <- length(table)
-    base_vec <- table$INTER
-    target_vec <- table$TARGET 
-    objective <- sqrt(sum((base_vec - target_vec) ** 2))
+    objective <- 0
+    for (i in seq_along(target)){
+        objective <- objective + sqrt(sum((baseline[[i]] - target[[i]]) ** 2))
+    }
 
     return(objective)
-
 }

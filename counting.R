@@ -17,6 +17,7 @@ source("conversion.R")
 # base: Base Matrix CSV object
 # conditions: .RData savefile created by read_config.R
 gen_counts <- function(inp, tables, conditions) {
+    outs <- list()
     # read the files
     # source <- data.table::fread(file=inp)   # input file containing the data
     source <- inp   # input data table
@@ -55,10 +56,10 @@ gen_counts <- function(inp, tables, conditions) {
             }
             # wrap the string with the original data table name
             temp_s <- paste("source[", temp_s, "]")
-            print(temp_s)
+            # print(temp_s)
             # evaluate the string to generate the subset of the data table
             temp_df <- eval(parse(text=temp_s))
-            head(temp_df)
+            # head(temp_df)
             # generate a string to examine the target variable type
             w_string <- paste("sum(temp_df$", cond["target_var"],")")
             # print(w_string)
@@ -74,5 +75,7 @@ gen_counts <- function(inp, tables, conditions) {
         baseline <- mutate(baseline, INTER=new_weights)
         # write the baseline matrix to a csv file
         # data.table::fwrite(baseline, file=base[[t]])
+        outs[[t]] <- baseline
     }
+    return(outs)
 }
