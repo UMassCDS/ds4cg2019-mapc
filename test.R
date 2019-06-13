@@ -1,11 +1,12 @@
 # script to test a scenario with written functions
 # import libraries
-library(data.table)
-library(readr)
-library(dplyr)
+suppressPackageStartupMessages(library(data.table))
+suppressPackageStartupMessages(library(readr))
+suppressPackageStartupMessages(library(dplyr))
 # source custom functions
-source("counting.R")
-source("objective.R")
+# source("counting.R")
+# source("objective.R")
+# source("gen_tables.R")
 source("base_algo.R")
 # read inuput and base matrix files
 inp <- data.table::fread(file="ss16pma.csv")
@@ -19,17 +20,20 @@ for (i in seq_along(f_tables)){
 # generate the intermediate counts
 # new_tables <- gen_counts(inp, tables, conditions)
 # generate the targets and baseline values
-# targets <- list()
-# baselines <- list()
-# for (i in seq_along(f_tables)){
-#     data.table::fwrite(new_tables[[i]], file=f_tables[[i]])
-#     targets[[i]] <- new_tables[[i]]$TARGET 
-#     baselines[[i]] <- new_tables[[i]]$INTER
-
-# }
+# baselines <- gen_tables(new_tables, f_tables)
 # calculate the objective function
-# obj <- calc_objective(targets, baselines)
+# obj <- calc_objective(baselines[[1]], baselines[[2]])
 # print(obj)
 
 # run the algorithm for one iteration
-random_descent(inp, tables, conditions)
+# head(inp)
+# head(tables[[1]])
+# head(tables[[2]])
+for (i in 1:1000){
+    results <- random_descent(inp, tables, conditions, f_tables)
+    inp <- results[[1]]
+    tables <- results[[2]]
+}
+# head(inp)
+# head(tables[[1]])
+# head(tables[[2]])
