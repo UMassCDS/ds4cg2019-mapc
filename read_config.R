@@ -33,7 +33,6 @@ get_hvec <- function(dim_vec){ # Get the helping vector for moving between coord
   return(hvec)
 }
 
-
 config_file <- "reweighting_config.json"
 
 config <- fromJSON(file=config_file)
@@ -84,9 +83,7 @@ for(t in seq(num_tables)){
   # The following 2 functions are for switching between indices and coordinates
   # These functions will make use of dim_vec, ivec, hvec and num_dims objects created above
   
-  index2coord <- function(index, hvec){ # Takes as input an index and outputs the coordinates as a vector
-    num_dims <- length(hvec)
-    ivec <- vector(mode="numeric", length=num_dims)
+  index2coord <- function(index){ # Takes as input an index and outputs the coordinates as a vector
     for(i in seq(num_dims)){
       ivec[i] <- ceiling(index/hvec[i])
       if(ivec[i] == 0){ ivec[i] <- dim_vec[i] } # This needs to be done because vectors are 1-indexed in R
@@ -95,8 +92,7 @@ for(t in seq(num_tables)){
     return(ivec)
   }
   
-  coord2index <- function(ivec, hvec){  # Takes as input the coordinates as a vector and outputs an index
-    num_dims <- length(hvec)
+  coord2index <- function(ivec){  # Takes as input the coordinates as a vector and outputs an index
     index <- 1
     for(i in seq(num_dims)){
       if(ivec[i] > 1){
@@ -123,7 +119,7 @@ for(t in seq(num_tables)){
         }
       }
     }
-    index <- coord2index(ivec, hvec)
+    index <- coord2index(ivec)
     return(index)
   })
   
@@ -144,7 +140,7 @@ for(t in seq(num_tables)){
   write(header, file=tf, append=FALSE)
   
   for(n in seq(num_cells)){
-    ivec <- index2coord(n, hvec)
+    ivec <- index2coord(n)
     row <- vector(mode="character", length=num_dims)
     for(i in seq(num_dims)){
       row[i] <- conds[[i]][[ivec[i]]]
