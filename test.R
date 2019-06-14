@@ -26,14 +26,8 @@ for (i in seq_along(f_tables)){
 # print(obj)
 
 # run the algorithm for one iteration
-# head(inp)
-# head(tables[[1]])
-# head(tables[[2]])
 for (i in 1:1000){
     results <- random_descent(inp, tables, conditions, f_tables)
     inp <- results[[1]]
     tables <- results[[2]]
 }
-# head(inp)
-# head(tables[[1]])
-# head(tables[[2]])
