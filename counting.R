@@ -27,7 +27,7 @@ gen_counts <- function(inp, tables, conditions) {
         # baseline <- data.table::fread(file=base[[t]], fill=TRUE) # input file containing the baseline matrices
         baseline <- tables[[t]]
         # generate a list of variable names, number of variable conditions
-        start_time <- Sys.time()
+        # start_time <- Sys.time()
         var_names <- c(cond[[t]][[3]])  # list of variable names
         dim_vec <- cond[[t]][[2]]  # list of variable dimensions
         hvec <- get_hvec(dim_vec)
@@ -68,8 +68,8 @@ gen_counts <- function(inp, tables, conditions) {
             # add evaluated sum to the existing weight vector
             new_weights <- c(new_weights, weight_sum)
         }
-        end_time <- Sys.time()
-        time <- end_time - start_time
+        # end_time <- Sys.time()
+        # time <- end_time - start_time
         # print(paste("Time: ", time))
         # generate the baseline matrix
         baseline <- mutate(baseline, INTER=new_weights)
