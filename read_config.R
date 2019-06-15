@@ -1,5 +1,3 @@
-# Saurabh Shirodkar and Pratheek Mallya
-#
 # This script is meant to process MAPC reweighting config files. Please see the README for the format of the config file.
 
 library(rjson)
