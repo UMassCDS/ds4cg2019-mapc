@@ -11,7 +11,7 @@ source("base_algo.R")
 # read inuput and base matrix files
 inp <- data.table::fread(file="ss16pma.csv")
 conditions <- read_rds("savefile.RData")
-num_iters <- 150
+num_iters <- 500
 update_factor <- 0.01
 write_flag <- TRUE
 
