@@ -11,9 +11,12 @@ source("base_algo.R")
 # read inuput and base matrix files
 inp <- data.table::fread(file="ss16pma.csv")
 conditions <- read_rds("savefile.RData")
-num_iters <- 1
+num_iters <- 15
 update_factor <- 0.01
-write_flag <- FALSE
+write_flag <- TRUE
 
 # run the algorithm for one iteration
+# small changes causing massive change in OFValue, why?
 weights <- random_descent(inp, conditions, num_iters, update_factor, write_flag)
+weights <- data.table(weights)
+data.table::fwrite(weights, file="weights_final.csv")
