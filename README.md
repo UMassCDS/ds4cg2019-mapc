@@ -55,9 +55,9 @@ The target tables should be entered into the file "reweighting_config.json". The
 
 ```
 
-"file_name" specifies the input CSV file(the PUMS dataset).
+> * "file_name" specifies the input CSV file(the PUMS dataset).
 
-"target_var" specifies the name of the target variable in the input CSV file.
+> * "target_var" specifies the name of the target variable in the input CSV file.
 
 Each object in the "tables" array represents a table. There can be an arbitrary amount of tables.
 
