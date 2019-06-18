@@ -1,9 +1,10 @@
+# this file is unused
 # load libraries
 library(dplyr)
 library(readr)
 library(stringr)
 library(data.table)
-library(itertools)
+
 # import custom functions
 source("conversion.R")
 
