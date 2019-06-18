@@ -6,6 +6,8 @@ This file describes the process of creating targets and executing the algorithm 
 
 The target tables should be entered into the file "reweighting_config.json". The format of the file can be understood from the following example:
 
+```
+
 {
   "file_name": "ss16pma.csv",
   "target_var":  "PWGTP",
@@ -51,6 +53,8 @@ The target tables should be entered into the file "reweighting_config.json". The
   ]
 }
 
+```
+
 "file_name" specifies the input CSV file(the PUMS dataset).
 
 "target_var" specifies the name of the target variable in the input CSV file.
@@ -68,6 +72,6 @@ After specifying the target tables, run the script "test.R". The number of itera
 Dependencies:
 R Packages:
 
-> tidyverse
-> rjson
-> data.table
+* tidyverse
+* rjson
+* data.table
