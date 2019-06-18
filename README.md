@@ -63,7 +63,7 @@ The number of dimensions, as well as the number of conditions within each dimens
 
 After specifying "reweighting_config.json" in this format, run the script "read_config.R". Corresponding to each table, a CSV file will be generated with the same name as that table. Open the CSV file for each table(using a software such as MS Excel) and fill in the target values corresponding to each cell of the target table.
 
-After specifying the target tables, run the script "randomized_descent.R". The number of iterations can be modified at the top of the script. At the end of the script, the output weights will be written to the file "weights.txt".
+After specifying the target tables, run the script "test.R". The number of iterations can be modified at the top of the script. At the end of the script, the output weights will be written to the file "weights.txt".
 
 Dependencies:
 R Packages:
