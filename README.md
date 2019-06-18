@@ -68,5 +68,7 @@ After specifying the target tables, run the script "test.R". The number of itera
 Dependencies:
 R Packages:
 tidyverse
+
 rjson
+
 data.table
