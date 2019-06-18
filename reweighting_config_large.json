@@ -1,4 +1,6 @@
 {
+  "file_name": "ss16pma.csv",
+  "target_var":  "PWGTP",
   "tables": [
     {
       "name": "FirstTable",
