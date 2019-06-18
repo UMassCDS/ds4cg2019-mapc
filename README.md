@@ -2,7 +2,7 @@ Saurabh Shirodkar and Pratheek Mallya
 
 DS4CG MAPC
 
-This file describes the process of creating targets for the MAPC reweighting procedure.
+This file describes the process of creating targets and executing the algorithm for the MAPC reweighting procedure.
 
 The target tables should be entered into the file "reweighting_config.json". The format of the file can be understood from the following example:
 
