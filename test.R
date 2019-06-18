@@ -1,3 +1,4 @@
+# main file
 # script to test a scenario with written functions
 # import libraries
 suppressPackageStartupMessages(library(data.table))
