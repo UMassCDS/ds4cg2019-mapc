@@ -121,7 +121,7 @@ random_descent <- function(inp, cond, num_iter, u_factor, wflag) {
         new_val <- of_val
         
         # check for the early exit condition
-        if (abs(new_val - prev_val) < 0.000000001) {
+        if (abs(new_val - prev_val) == 0) {
             print("Early Exit")
             print(paste("Number of Iterations: ", i))
              break

@@ -5,7 +5,6 @@ suppressPackageStartupMessages(library(readr))
 suppressPackageStartupMessages(library(dplyr))
 
 # source custom functions
-source("counting.R")
 source("base_algo.R")
 
 # read inuput and base matrix files
