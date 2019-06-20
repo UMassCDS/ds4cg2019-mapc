@@ -1,4 +1,4 @@
-# base randomized descent algorithm
+# base randomized descent algorithm with functionality for changing HH weights as well as Person weights
 # import libraries
 library(dplyr)
 library(data.table)
@@ -13,7 +13,7 @@ source("objective.R")
 # u_factor: factor by which the weights are updated
 # wflag: flag whether to write data to file
 # OUTPUTS: set of updated weights 
-random_descent <- function(inp, cond, num_iter, u_factor, wflag) {
+random_descent_hh <- function(inp, cond, num_iter, u_factor, wflag) {
     # get the number of tables
     n_tables <- length(cond) - 2
     # get input file name
@@ -60,11 +60,33 @@ random_descent <- function(inp, cond, num_iter, u_factor, wflag) {
             for (t in seq(n_tables)){
                 id <- ids[[t]][r]
                 if (id == 0){next}
+                if (target_var == "WGTP"){
+                    if (inp[[r]]$SPORDER == 1){
+                        # iterate through the household
+                        target_val <- targets[[t]][id]
+                        base_old <- baselines[[t]][id]
+                        base_new <- base_old + w_delta
+                        r_temp <- r + 1
+                        # update the objective function
+                        while(inp[[r_temp]]$SPORDER != 1){
+                            target_val <- targets[[t]][id]
+                            base_old <- baselines[[t]][id]
+                            base_new <- base_old + w_delta
+                            r_temp <- r + 1
+                            # update the objective function
+
+                        }
+
+                    }
+                    else{next}
+                }
+                else{
                 target_val <- targets[[t]][id]
                 base_old <- baselines[[t]][id]
                 base_new <- base_old + w_delta
                 # print(paste("base_old1: ", base_old))
                 # print(paste("base_new1: ", base_new))
+                }
                 of_new <- of_new - (target_val - base_old) ^ 2 + (target_val - base_new) ^ 2
                 # print(paste("ofnew2: ", of_new))
             }

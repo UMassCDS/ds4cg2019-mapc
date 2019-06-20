@@ -16,6 +16,5 @@ write_flag <- TRUE
 
 # run the algorithm for one iteration
 weights <- random_descent(inp, conditions, num_iters, update_factor, write_flag)
-weights <- data.table(weights)
 # write the weights to file
 data.table::fwrite(weights, file="weights_final.csv")
