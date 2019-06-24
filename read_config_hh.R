@@ -5,30 +5,30 @@ suppressPackageStartupMessages(library(dplyr))
 suppressPackageStartupMessages(library(data.table))
 
 generator <- function(condition){ # Need to do this because R.
-  force(condition)
-  expr <- parse(text=condition)
-  c <- as.character(expr)
-  f <- function(x){
-    return(eval(expr))
-  }
-  ret <- list()
-  ret[[1]] <- c
-  ret[[2]] <- f
-  return(ret)
+    force(condition)
+    expr <- parse(text=condition)
+    c <- as.character(expr)
+    f <- function(x){
+        return(eval(expr))
+    }
+    ret <- list()
+    ret[[1]] <- c
+    ret[[2]] <- f
+    return(ret)
 }
 
 get_hvec <- function(dim_vec){ # Get the helping vector for moving between coordinates and indices
-  num_dims <- length(dim_vec)
-  hvec <- vector(mode="numeric", length=num_dims)
-  for(i in seq(num_dims)){
-    if(i < num_dims){
-      hvec[i] <- prod(dim_vec[(i+1):num_dims])  # Component i of hvec denotes after how many indices that dimension changes value(condition)
+    num_dims <- length(dim_vec)
+    hvec <- vector(mode="numeric", length=num_dims)
+    for(i in seq(num_dims)){
+        if(i < num_dims){
+            hvec[i] <- prod(dim_vec[(i+1):num_dims])  # Component i of hvec denotes after how many indices that dimension changes value(condition)
+        }
+        else{   # i == num_dims
+            hvec[i] <- 1
+        }
     }
-    else{   # i == num_dims
-      hvec[i] <- 1
-    }
-  }
-  return(hvec)
+    return(hvec)
 }
 
 config_file <- "reweighting_config_test.json"
