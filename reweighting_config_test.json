@@ -1,0 +1,80 @@
+{
+    "file_name": "testhh.csv",
+    "blocks" : [
+        {
+            "target_var":  "PWGTP",
+            "special_cond": "none",
+            "tables": [
+                {
+                  "name": "FirstTable",
+                  "dims": [
+                    {
+                      "var": "AGEP",
+                      "type": "NUM",
+                      "conditions": [
+                        "x <= 2 ",
+                        "2 < x & x <= 4",
+                        "4 < x & x <= 6",
+                        "x > 6"
+                      ]
+                    },
+                    {
+                        "var": "SEX",
+                        "type": "NUM",
+                        "conditions": [
+                            "x == 1",
+                            "x == 2"
+                        ]
+                    }
+                  ]
+                },
+                {
+                    "name": "SecondTable",
+                    "dims": [
+                        {
+                            "var": "INC",
+                            "type": "NUM",
+                            "conditions": [
+                                "x == 1",
+                                "x == 2",
+                                "x == 3",
+                                "x == 4",
+                                "x == 5"
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "target_var": "WGTP",
+            "special_cond": "SPORDER == 1",
+            "tables": [
+                {
+                    "name": "ThirdTable",
+                    "dims": [
+                        {
+                            "var": "ADJINC",
+                            "type": "NUM",
+                            "conditions": [
+                                "x == 3",
+                                "x == 4",
+                                "x == 5",
+                                "x == 6"
+                            ]
+                        },
+                        {
+                            "var": "HHTYPE",
+                            "type": "NUM",
+                            "conditions": [
+                                "x == 1",
+                                "x == 2",
+                                "x > 3"
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
