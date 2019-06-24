@@ -1,8 +1,8 @@
 # This script is meant to process MAPC reweighting config files. Please see the README for the format of the config file.
 
-library(rjson)
-library(dplyr)
-library(data.table)
+suppressPackageStartupMessages(library(rjson))
+suppressPackageStartupMessages(library(dplyr))
+suppressPackageStartupMessages(library(data.table))
 
 generator <- function(condition){ # Need to do this because R.
   force(condition)
@@ -75,9 +75,9 @@ for (b in seq(num_blocks)){
             funcs[[i]] <- list()  # Create a new list for the current dimension
     
             for(j in seq(num_conditions)){
-            ret <- generator(conditions[[j]])
-            conds[[i]][[j]] <- ret[[1]]
-            funcs[[i]][[j]] <- ret[[2]]
+                ret <- generator(conditions[[j]])
+                conds[[i]][[j]] <- ret[[1]]
+                funcs[[i]][[j]] <- ret[[2]]
             }
         }
   
@@ -170,7 +170,6 @@ for (b in seq(num_blocks)){
     
         save_list[[t]] <- new_list
     }
-
 }
 
 save_list[["file_name"]] <- file_name
