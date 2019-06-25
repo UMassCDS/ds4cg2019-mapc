@@ -52,7 +52,8 @@ for (b in seq(num_blocks)){
     # get the number of tables in the block
     num_tables <- length(config[["blocks"]][[b]][["tables"]])
     # get the special condition applicable to the target_var
-    special_cond <- config[["blocks"]][[b]][["special_cond"]]
+    special_cond_var <- config[["blocks"]][[b]][["special_cond_var"]]
+    special_cond_target <- config[["blocks"]][[b]][["special_cond_target"]]
     # iterate through the tables
     for(t in seq(num_tables)){
         table <- config[["blocks"]][[b]][["tables"]][[t]]
@@ -107,22 +108,33 @@ for (b in seq(num_blocks)){
             }
             return(index)
         }
-  
-        d <- data %>%
-        select(c(unlist(var_names), target_var)) %>%
-        as.matrix()
-        if (b == 2) {
-            print(d)
-            break 
+
+        # prune for the special condition
+        if (special_cond_var != "none"){
+            var_names = c(var_names, special_cond_var)
         }
 
+        d <- data %>%
+        select(c(unlist(var_names), target_var)) %>%
+        as.data.table()
+
+        # modify the data table for the special condition 
+        if (special_cond_var != "none") {
+            ev_expr <- paste("filter(d, ", special_cond_var, "==", special_cond_target, ")")
+            d <- eval(parse(text=ev_expr))
+            ev_expr <- paste("select(d, -", special_cond_var, ")")
+            d <- eval(parse(text=ev_expr))
+            var_names <- var_names[var_names != special_cond_var]
+        }
+
+        # get the ids
         ids <- apply(d, 1, function(row){ # For each row, find which index of the target matrix the weight is to be added to
             for(i in seq(num_dims)){
                 for(j in seq(dim_vec[i])){
                     truth_val <- funcs[[i]][[j]](row[i])
                     if(!is.na(truth_val) & truth_val == TRUE){
-                    ivec[i] <- j
-                    break
+                        ivec[i] <- j
+                        break
                     }
                     else if(j == dim_vec[i]){
                         return(0)

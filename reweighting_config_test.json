@@ -3,7 +3,8 @@
     "blocks" : [
         {
             "target_var":  "PWGTP",
-            "special_cond": "none",
+            "special_cond_var": "none",
+            "special_cond_target": "none",
             "tables": [
                 {
                   "name": "FirstTable",
@@ -48,7 +49,8 @@
         },
         {
             "target_var": "WGTP",
-            "special_cond": "SPORDER == 1",
+            "special_cond_var": "SPORDER",
+            "special_cond_target": "1",
             "tables": [
                 {
                     "name": "ThirdTable",
