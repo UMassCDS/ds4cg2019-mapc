@@ -54,6 +54,7 @@ for (b in seq(num_blocks)){
     # get the special condition applicable to the target_var
     special_cond_var <- config[["blocks"]][[b]][["special_cond_var"]]
     special_cond_target <- config[["blocks"]][[b]][["special_cond_target"]]
+    block_list <- list()
     # iterate through the tables
     for(t in seq(num_tables)){
         table <- config[["blocks"]][[b]][["tables"]][[t]]
@@ -117,7 +118,7 @@ for (b in seq(num_blocks)){
         d <- data %>%
         select(c(unlist(var_names), target_var)) %>%
         as.data.table()
-
+        
         # modify the data table for the special condition 
         if (special_cond_var != "none") {
             ev_expr <- paste("filter(d, ", special_cond_var, "==", special_cond_target, ")")
@@ -125,6 +126,7 @@ for (b in seq(num_blocks)){
             ev_expr <- paste("select(d, -", special_cond_var, ")")
             d <- eval(parse(text=ev_expr))
             var_names <- var_names[var_names != special_cond_var]
+
         }
 
         # get the ids
@@ -179,12 +181,15 @@ for (b in seq(num_blocks)){
         new_list[[5]] <- conds
         new_list[[6]] <- funcs
         new_list[[7]] <- ids    # Indices of the input CSV rows into the target vector
-    
-        save_list[[t]] <- new_list
+        block_list[[t]] <- new_list
     }
+    block_list[["target_var"]]  <- target_var
+    block_list[["num_tables"]] <- num_tables
+    block_list[["special_cond_var"]] <- special_cond_var
+    block_list[["special_cond_target"]] <- special_cond_target
+    save_list[[b]] <- block_list
 }
 
 save_list[["file_name"]] <- file_name
-# save_list[["target_var"]] <- target_var
 
 saveRDS(save_list, file="savefilehh.RData")
