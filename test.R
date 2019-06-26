@@ -5,16 +5,16 @@ suppressPackageStartupMessages(library(readr))
 suppressPackageStartupMessages(library(dplyr))
 
 # source custom functions
-source("base_algo.R")
+source("base_algo_hh.R")
 
 # read inuput and base matrix files
-inp <- data.table::fread(file="ss16pma.csv")
-conditions <- read_rds("savefile.RData")
-num_iters <- 5000
+inp <- data.table::fread(file="testhh.csv")
+conditions <- read_rds("savefilehh.RData")
+num_iters <- 5
 update_factor <- 0.01
 write_flag <- TRUE
 
 # run the algorithm for one iteration
-weights <- random_descent(inp, conditions, num_iters, update_factor, write_flag)
+weights <- random_descent_hh(inp, conditions, num_iters, update_factor, write_flag)
 # write the weights to file
 data.table::fwrite(weights, file="weights_final.csv")

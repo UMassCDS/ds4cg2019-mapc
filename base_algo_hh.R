@@ -14,36 +14,49 @@ source("objective.R")
 # wflag: flag whether to write data to file
 # OUTPUTS: set of updated weights 
 random_descent_hh <- function(inp, cond, num_iter, u_factor, wflag) {
-    # get the number of tables
-    n_tables <- length(cond) - 2
+    # get the number of tables and blocks
+    n_blocks <- length(cond) - 1
+    n_tables <- list()
     # get input file name
     inp_file <- cond[["file_name"]]
     # get the target variable
-    target_var <- cond[["target_var"]]
+    target_var <- list()
     # get the initial weights as a numeric vector
-    weights <- as.numeric(inp[[target_var]])
-
+    weights <- list()
+    for (b in seq(n_blocks)){
+        n_tables[[b]] <- cond[[b]][["num_tables"]]
+        target_var[[b]] <- cond[[b]][["target_var"]]
+        weights[[b]] <- as.numeric(inp[[target_var[[b]]]])
+    }
     # init the ids, baselines and targets
     ids <- list()
     baselines <- list()
     targets <- list()
 
     # iterate through all the tables
-    for (t in seq(n_tables)){
-        table <- cond[[t]]
-        data <- data.table::fread(file=paste(table[[1]], ".csv", sep=""))
-        # get the ids, baseline and target values
-        baselines[[t]] <- as.numeric(data[["BASELINE"]])
-        targets[[t]] <- as.numeric(data[["TARGET"]])
-        ids[[t]] <- cond[[t]][[7]]
-        # add a new column containing the intermediate weights 
-        data <- mutate(data, INTER=baselines[[t]])
-        data.table::fwrite(data, file=paste(table[[1]], ".csv", sep=""))
+    for (b in seq(n_blocks)){
+        t_baselines <- list()
+        t_targets <- list()
+        t_ids <- list()
+        for (t in seq(n_tables[[b]])){
+            table <- cond[[b]][[t]]
+            data <- data.table::fread(file=paste(table[[1]], ".csv", sep=""))
+            # get the ids, baseline and target values
+            t_baselines[[t]] <- as.numeric(data[["BASELINE"]])
+            t_targets[[t]] <- as.numeric(data[["TARGET"]])
+            t_ids[[t]] <- cond[[b]][[t]][[7]]
+            # add a new column containing the intermediate weights 
+            data <- mutate(data, INTER=t_baselines[[t]])
+            data.table::fwrite(data, file=paste(table[[1]], ".csv", sep=""))
+        }
+        baselines[[b]] <- t_baselines
+        targets[[b]] <- t_targets
+        ids[[b]] <- t_ids
     }
-
     # calculate the initial objective function
     of_val <- calc_objective(targets, baselines)
     print(paste("init ofval: ", of_val))
+    quit(status=1)
     # run the algorithm for num_iter steps
     for (i in seq(num_iter)){
         # store the previous OFVal

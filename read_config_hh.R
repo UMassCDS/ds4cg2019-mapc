@@ -128,7 +128,7 @@ for (b in seq(num_blocks)){
             var_names <- var_names[var_names != special_cond_var]
 
         }
-
+        
         # get the ids
         ids <- apply(d, 1, function(row){ # For each row, find which index of the target matrix the weight is to be added to
             for(i in seq(num_dims)){
