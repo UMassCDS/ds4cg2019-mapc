@@ -79,8 +79,8 @@ random_descent_hh <- function(inp, cond, num_iter, u_factor, wflag) {
                 w_delta[["WGTP"]] <- u_factor * weights[["WGTP"]][r_temp]
                 while(h_flag == TRUE){
                     w_delta[["PWGTP"]] <- u_factor * weights[["PWGTP"]][r_temp]
-                    print(paste("r: ", r, " wdelh: ", w_delta[["WGTP"]], " wdelp: ", w_delta[["PWGTP"]]))
-                    print(paste("r: ", r, " r_temp: ", r_temp))
+                    # print(paste("r: ", r, " wdelh: ", w_delta[["WGTP"]], " wdelp: ", w_delta[["PWGTP"]]))
+                    # print(paste("r: ", r, " r_temp: ", r_temp))
                     # do the change
                     for (b in seq(n_blocks)){
                         # skip if no tables in block
@@ -135,13 +135,43 @@ random_descent_hh <- function(inp, cond, num_iter, u_factor, wflag) {
                     r_temp <- r
                     
                     while (i_flag == TRUE){
+                        print(paste("r_temp: ", r_temp))
+                        print(weights[["WGTP"]])
                         print(weights[["WGTP"]][r_temp])
                         print(paste("r: ", r))
                         print(paste("r_temp: ", r_temp))
                         print(w_delta[["WGTP"]])
                         weights[["WGTP"]][r_temp] <- weights[["WGTP"]][r_temp] + w_delta[["WGTP"]]
+                        w_delta[["PWGTP"]] <- weights[["PWGTP"]][r_temp] * u_factor
+                        print(paste("w_del_p: ", w_delta[["PWGTP"]]))
+                        weights[["PWGTP"]][r_temp] <- weights[["PWGTP"]][r_temp] + w_delta[["PWGTP"]]
                         print(weights[["WGTP"]][r_temp])
-                        quit()
+                        print(weights[["PWGTP"]][r_temp])
+                        print(weights[["WGTP"]])
+                        print(weights[["PWGTP"]])
+
+                        for (b in seq(n_blocks)){
+                            for (t in seq(n_tables[[b]])){
+                                id <- ids[[b]][[t]][r_temp]
+                                print(paste("id: ", id))
+                                if (id > 0){
+                                    print(baselines[[b]][[1]])
+                                    quit()
+                                }
+                            }
+                        }
+
+                        # increment r_temp to move through persons in a HH
+                        if (r_temp != nrow(inp)){
+                            r_temp <- r_temp + 1
+                        }
+                        else {
+                            r_temp <- 1
+                        }
+                        # break out of the loop if a new HH is selected
+                        if (inp[r_temp]$SPORDER == 1){
+                            i_flag <- FALSE
+                        }
                     }                    
                     quit()
                 }
