@@ -112,13 +112,12 @@ for (b in seq(num_blocks)){
 
         # prune for the special condition
         if (special_cond_var != "none"){
-            var_names = c(var_names, special_cond_var)
+            var_names = c(special_cond_var, var_names)
         }
 
         d <- data %>%
         select(c(unlist(var_names), target_var)) %>%
         as.data.table()
-        
         # modify the data table for the special condition 
         if (special_cond_var != "none") {
             ev_expr <- paste("filter(d, ", special_cond_var, "==", special_cond_target, ")")
@@ -126,10 +125,9 @@ for (b in seq(num_blocks)){
             ev_expr <- paste("select(d, -", special_cond_var, ")")
             d <- eval(parse(text=ev_expr))
             var_names <- var_names[var_names != special_cond_var]
-
         }
-        
-        # get the ids
+
+        # get the ids for computation of baselines
         ids <- apply(d, 1, function(row){ # For each row, find which index of the target matrix the weight is to be added to
             for(i in seq(num_dims)){
                 for(j in seq(dim_vec[i])){
@@ -156,6 +154,28 @@ for (b in seq(num_blocks)){
                 target_vector[id] <- target_vector[id] + d[i, ncol(d)]  # Last column of d is target variable
             }
         }
+
+        d <- data %>%
+        select(c(unlist(var_names), target_var)) %>%
+        as.data.table()
+
+        # get the ids for reference in the algorithm
+        ids <- apply(d, 1, function(row){ # For each row, find which index of the target matrix the weight is to be added to
+            for(i in seq(num_dims)){
+                for(j in seq(dim_vec[i])){
+                    truth_val <- funcs[[i]][[j]](row[i])
+                    if(!is.na(truth_val) & truth_val == TRUE){
+                        ivec[i] <- j
+                        break
+                    }
+                    else if(j == dim_vec[i]){
+                        return(0)
+                    }
+                }
+            }   
+            index <- coord2index(ivec)
+            return(index)
+        })
   
         tf <- paste(c(name, ".csv"), collapse="") # Target file name
   
