@@ -8,9 +8,9 @@ suppressPackageStartupMessages(library(dplyr))
 source("base_algo_hh.R")
 
 # read inuput and base matrix files
-inp <- data.table::fread(file="testhh.csv")
+inp <- data.table::fread(file="POP2016.csv")
 conditions <- read_rds("savefilehh.RData")
-num_iters <- 5
+num_iters <- 500
 update_factor <- 0.01
 write_flag <- TRUE
 

@@ -3,6 +3,7 @@
 suppressPackageStartupMessages(library(rjson))
 suppressPackageStartupMessages(library(dplyr))
 suppressPackageStartupMessages(library(data.table))
+suppressPackageStartupMessages(library(bit64))
 
 generator <- function(condition){ # Need to do this because R.
     force(condition)
@@ -31,7 +32,7 @@ get_hvec <- function(dim_vec){ # Get the helping vector for moving between coord
     return(hvec)
 }
 
-config_file <- "reweighting_config_test.json"
+config_file <- "reweighting_config_hh.json"
 
 config <- fromJSON(file=config_file)
 
@@ -118,6 +119,7 @@ for (b in seq(num_blocks)){
         d <- data %>%
         select(c(unlist(var_names), target_var)) %>%
         as.data.table()
+        
         # modify the data table for the special condition 
         if (special_cond_var != "none") {
             ev_expr <- paste("filter(d, ", special_cond_var, "==", special_cond_target, ")")
@@ -147,18 +149,24 @@ for (b in seq(num_blocks)){
         
         num_cells <- prod(dim_vec)  # Number of cells in the target matrix
         target_vector <- vector(mode="numeric", length=num_cells)
-  
+        
         for(i in seq(length(ids))){
             id <- ids[i]
             if(id > 0){
-                target_vector[id] <- target_vector[id] + d[i, ncol(d)]  # Last column of d is target variable
+                if (special_cond_var != "none"){
+                    target_vector[id] <- target_vector[id] + d[i, ncol(d)]  # Last column of d is target variable
+                }
+                else {                   
+                    target_vector[id] <- target_vector[id] + d[[ncol(d)]][i]  # Last column of d is target variable
+                }
+                
             }
         }
 
         d <- data %>%
         select(c(unlist(var_names), target_var)) %>%
         as.data.table()
-
+        
         # get the ids for reference in the algorithm
         ids <- apply(d, 1, function(row){ # For each row, find which index of the target matrix the weight is to be added to
             for(i in seq(num_dims)){
