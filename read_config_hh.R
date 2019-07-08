@@ -168,7 +168,7 @@ for (b in seq(num_blocks)){
             var_names <- var_names[var_names != special_cond_var]
         }
 
-        # get the ids for computation of baselines
+        # get the ids for computation of baselines (only parents)
         
         ids <- apply(d, 1, function(row){ # For each row, find which index of the target matrix the weight is to be added to
             for(i in seq(num_dims)){
@@ -208,7 +208,7 @@ for (b in seq(num_blocks)){
         select(c(unlist(var_names), target_var)) %>%
         as.data.table()
         
-        # get the ids for reference in the algorithm
+        # get the ids for reference in the algorithm (for parents and children)
         ids <- apply(d, 1, function(row){ # For each row, find which index of the target matrix the weight is to be added to
             for(i in seq(num_dims)){
                 for(j in seq(dim_vec[i])){
