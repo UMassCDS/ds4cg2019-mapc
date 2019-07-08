@@ -61,19 +61,19 @@
 		{
 			"target_var": "WGTP",
 			"special_cond_var": "SPORDER",
-	  "special_cond_target": "1",
-	  "tables": [
-		{
-		  "name": "FourthTable",
-		  "dims": [
-			{
-			  "var": "HHTYPE",
-			  "type": "NUM",
-			  "conditions": [
-				"x == 1",
-				"x == 2",
-				"x >= 3"
-			  ]
+	  		"special_cond_target": "1",
+	  		"tables": [
+				{
+		  			"name": "FourthTable",
+		  			"dims": [
+						{
+			  				"var": "HHTYPE",
+			  				"type": "NUM",
+			  				"conditions": [
+								"x == 1",
+								"x == 2",
+								"x >= 3"
+			  				]
 						}
 					]
 				}

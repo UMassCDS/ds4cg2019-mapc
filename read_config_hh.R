@@ -32,7 +32,7 @@ get_hvec <- function(dim_vec){ # Get the helping vector for moving between coord
     return(hvec)
 }
 
-config_file <- "reweighting_config_hh.json"
+config_file <- "reweighting_config_test.json"
 
 config <- fromJSON(file=config_file)
 
@@ -58,6 +58,7 @@ for (b in seq(num_blocks)){
     block_list <- list()
     # iterate through the tables
     for(t in seq(num_tables)){
+        s_t <- Sys.time()
         table <- config[["blocks"]][[b]][["tables"]][[t]]
         name <- table[["name"]]
         dims <- table[["dims"]]
@@ -121,15 +122,54 @@ for (b in seq(num_blocks)){
         as.data.table()
         
         # modify the data table for the special condition 
+        # if (special_cond_var != "none") {
+        #     ev_expr <- paste("filter(d, ", special_cond_var, "==", special_cond_target, ")")
+        #     d <- eval(parse(text=ev_expr))
+        #     ev_expr <- paste("select(d, -", special_cond_var, ")")
+        #     d <- eval(parse(text=ev_expr))
+        #     var_names <- var_names[var_names != special_cond_var]
+        # }
+
+        # make a list of every child of parent of a HH
+        c_flag <- TRUE
+        children <- 0
+        if ((special_cond_var == "SPORDER") & c_flag){
+            c_flag <- FALSE
+            children <- list()
+            for (r in seq(nrow(d))){
+                if (d[r]$SPORDER == 1){
+                    c_list <- c()
+                    h_flag <- TRUE
+                    r_temp <- r
+                    while (h_flag == TRUE){
+                        c_list <- c(c_list, r_temp)
+                        r_temp <- r_temp + 1
+                        if (d[r_temp]$SPORDER == 1 | r_temp > nrow(d)){
+                            h_flag <- FALSE
+                        }
+                    }
+                    children[[r]] <- c_list
+                }
+                else {
+                    children[[r]] <- 0
+                }
+
+            }
+        }
+
+        # modify the data table for the special condition 
         if (special_cond_var != "none") {
             ev_expr <- paste("filter(d, ", special_cond_var, "==", special_cond_target, ")")
             d <- eval(parse(text=ev_expr))
-            ev_expr <- paste("select(d, -", special_cond_var, ")")
+            
+            ev_expr <- paste("select(d, -c(", special_cond_var, ")) %>% as.data.table()")
             d <- eval(parse(text=ev_expr))
+            
             var_names <- var_names[var_names != special_cond_var]
         }
 
         # get the ids for computation of baselines
+        
         ids <- apply(d, 1, function(row){ # For each row, find which index of the target matrix the weight is to be added to
             for(i in seq(num_dims)){
                 for(j in seq(dim_vec[i])){
@@ -149,17 +189,18 @@ for (b in seq(num_blocks)){
         
         num_cells <- prod(dim_vec)  # Number of cells in the target matrix
         target_vector <- vector(mode="numeric", length=num_cells)
-        
+
         for(i in seq(length(ids))){
             id <- ids[i]
             if(id > 0){
-                if (special_cond_var != "none"){
-                    target_vector[id] <- target_vector[id] + d[i, ncol(d)]  # Last column of d is target variable
-                }
-                else {                   
-                    target_vector[id] <- target_vector[id] + d[[ncol(d)]][i]  # Last column of d is target variable
-                }
+                val_exp <- paste("d[i]$",target_var)
+                val <- eval(parse(text=val_exp))
                 
+                if (!is.integer(val)){
+                    print("Value Error (Non-Integer)")
+                    quit(status=1)
+                }
+                target_vector[id] <- target_vector[id] + val  # Last column of d is target variable
             }
         }
 
@@ -184,7 +225,7 @@ for (b in seq(num_blocks)){
             index <- coord2index(ivec)
             return(index)
         })
-  
+        
         tf <- paste(c(name, ".csv"), collapse="") # Target file name
   
         header <- paste(unlist(var_names), collapse=",")
@@ -209,8 +250,12 @@ for (b in seq(num_blocks)){
         new_list[[5]] <- conds
         new_list[[6]] <- funcs
         new_list[[7]] <- ids    # Indices of the input CSV rows into the target vector
+        new_list[[8]] <- children
         block_list[[t]] <- new_list
+        e_t <- Sys.time()
+        print(paste("Block: ", b, " | Table: ", t, " | Time: ", (e_t - s_t)))
     }
+
     block_list[["target_var"]]  <- target_var
     block_list[["num_tables"]] <- num_tables
     block_list[["special_cond_var"]] <- special_cond_var
