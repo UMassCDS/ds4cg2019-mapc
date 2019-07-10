@@ -32,7 +32,7 @@ get_hvec <- function(dim_vec){ # Get the helping vector for moving between coord
     return(hvec)
 }
 
-config_file <- "reweighting_config_test.json"
+config_file <- "reweighting_config_hh.json"
 
 config <- fromJSON(file=config_file)
 
@@ -250,7 +250,6 @@ for (b in seq(num_blocks)){
         new_list[[5]] <- conds
         new_list[[6]] <- funcs
         new_list[[7]] <- ids    # Indices of the input CSV rows into the target vector
-        new_list[[8]] <- children
         block_list[[t]] <- new_list
         e_t <- Sys.time()
         print(paste("Block: ", b, " | Table: ", t, " | Time: ", (e_t - s_t)))
@@ -264,5 +263,6 @@ for (b in seq(num_blocks)){
 }
 
 save_list[["file_name"]] <- file_name
+save_list[["children"]] <- children
 
 saveRDS(save_list, file="savefilehh.RData")

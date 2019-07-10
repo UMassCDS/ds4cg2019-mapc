@@ -5,12 +5,12 @@ suppressPackageStartupMessages(library(readr))
 suppressPackageStartupMessages(library(dplyr))
 
 # source custom functions
-source("base_algo_hh.R")
+source("algo_hh_optim.R")
 
 # read inuput and base matrix files
 inp <- data.table::fread(file="POP2016.csv")
 conditions <- read_rds("savefilehh.RData")
-num_iters <- 500
+num_iters <- 35
 update_factor <- 0.01
 write_flag <- TRUE
 
@@ -18,3 +18,4 @@ write_flag <- TRUE
 weights <- random_descent_hh(inp, conditions, num_iters, update_factor, write_flag)
 # write the weights to file
 data.table::fwrite(weights, file="weights_final.csv")
+# -415752 at 21 and 28.5739 s
