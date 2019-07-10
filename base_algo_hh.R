@@ -62,25 +62,26 @@ random_descent_hh <- function(inp, cond, num_iter, u_factor, wflag) {
         prev_val <- of_val
         start_time <- Sys.time()
         # get a random integer such that SPORDER == 1
-        r <- sample(nrow(inp), 1, replace=FALSE)
-        while(inp[r]$SPORDER != 1){
-            r <- sample(nrow(inp), 1, replace=FALSE)
-        }
-        print(paste("r: ", r))
+        # r <- sample(nrow(inp), 1, replace=FALSE)
+        # while(inp[r]$SPORDER != 1){
+        #     r <- sample(nrow(inp), 1, replace=FALSE)
+        # }
+        r <- 1
+        # print(paste("r: ", r))
         # iterate through the rows
         for (i in seq(nrow(inp))){
             of_new <- of_val
             # print(paste("ofnew1: ", of_new))
             h_flag <- TRUE
             if (inp[r]$SPORDER == 1){
+                # time a single household
+                start_time_hh <- Sys.time()
                 upd_flag <- TRUE
                 r_temp <- r
                 w_delta <- list()
                 w_delta[["WGTP"]] <- u_factor * weights[["WGTP"]][r_temp]
                 while(h_flag == TRUE){
                     w_delta[["PWGTP"]] <- u_factor * weights[["PWGTP"]][r_temp]
-                    # print(paste("r: ", r, " wdelh: ", w_delta[["WGTP"]], " wdelp: ", w_delta[["PWGTP"]]))
-                    # print(paste("r: ", r, " r_temp: ", r_temp))
                     # do the change
                     for (b in seq(n_blocks)){
                         # skip if no tables in block
@@ -89,22 +90,19 @@ random_descent_hh <- function(inp, cond, num_iter, u_factor, wflag) {
                         for (t in seq(n_tables[[b]])){
                             # get id of either person or hh table
                             id <- ids[[b]][[t]][r_temp]
-                            # print(paste("id: ", id))
                             # skip if id == 0
                             if (id == 0) {next}
                             # get the target and baseline
                             target_val <- targets[[b]][[t]][id]
                             base_old <- baselines[[b]][[t]][id]
+
                             if (cond[[b]][["special_cond_var"]] == "none"){
                                 base_new <- base_old + w_delta[[cond[[b]][["target_var"]]]]
                             }
                             else {
                                 base_new <- base_old + w_delta[[cond[[b]][["target_var"]]]]
                             }
-                            # print(cond[[b]][["target_var"]])
-                            # print(paste("target: ", target_val, " base: ", base_old))
-                            # print(paste("base_old1: ", base_old))
-                            # print(paste("base_new1: ", base_new))
+
                             if (cond[[b]][["special_cond_var"]] == "none"){
                                 of_new <- of_new - (target_val - base_old) ^ 2 + (target_val - base_new) ^ 2
                             }
@@ -124,10 +122,10 @@ random_descent_hh <- function(inp, cond, num_iter, u_factor, wflag) {
                     }
                     # break out of the loop if a new HH is selected
                     if (inp[r_temp]$SPORDER == 1){
-                        h_flag <- FALSE
+                        # h_flag <- FALSE
+                        break
                     }
                 }
-                # print(of_new)
                 # check if OFVal has improved
                 if (of_new < of_val){
                     # update the weights
@@ -175,8 +173,6 @@ random_descent_hh <- function(inp, cond, num_iter, u_factor, wflag) {
                     r_temp <- r
                     while(h_flag == TRUE){
                         w_delta[["PWGTP"]] <- u_factor * weights[["PWGTP"]][r_temp]
-                        # print(paste("r: ", r, " wdelh: ", w_delta[["WGTP"]], " wdelp: ", w_delta[["PWGTP"]]))
-                        # print(paste("r: ", r, " r_temp: ", r_temp))
                         # do the change
                         for (b in seq(n_blocks)){
                             # skip if no tables in block
@@ -185,22 +181,19 @@ random_descent_hh <- function(inp, cond, num_iter, u_factor, wflag) {
                             for (t in seq(n_tables[[b]])){
                                 # get id of either person or hh table
                                 id <- ids[[b]][[t]][r_temp]
-                                # print(paste("id: ", id))
                                 # skip if id == 0
                                 if (id == 0) {next}
                                 # get the target and baseline
                                 target_val <- targets[[b]][[t]][id]
                                 base_old <- baselines[[b]][[t]][id]
+
                                 if (cond[[b]][["special_cond_var"]] == "none"){
                                     base_new <- base_old - w_delta[[cond[[b]][["target_var"]]]]
                                 }
                                 else {
                                     base_new <- base_old - w_delta[[cond[[b]][["target_var"]]]]
                                 }
-                                # print(cond[[b]][["target_var"]])
-                                # print(paste("target: ", target_val, " base: ", base_old))
-                                # print(paste("base_old1: ", base_old))
-                                # print(paste("base_new1: ", base_new))
+
                                 if (cond[[b]][["special_cond_var"]] == "none"){
                                     of_new <- of_new - (target_val - base_old) ^ 2 + (target_val - base_new) ^ 2
                                 }
@@ -265,7 +258,6 @@ random_descent_hh <- function(inp, cond, num_iter, u_factor, wflag) {
                     }
                 }
             }
-            # print(baselines[[2]][[1]])
             # increment r while wrapping it around 
             if (r >= nrow(inp)){
                 r <- 1
@@ -274,7 +266,6 @@ random_descent_hh <- function(inp, cond, num_iter, u_factor, wflag) {
                 r <- r + 1
             }
         }
-        # quit(status=1)
         # write the data to file
         if (wflag) {
             for (b in seq(n_blocks)){
@@ -293,13 +284,12 @@ random_descent_hh <- function(inp, cond, num_iter, u_factor, wflag) {
         if (abs(new_val - prev_val) == 0) {
             print("Early Exit")
             print(paste("Number of Iterations: ", iter))
-             break
+            break
         }
         prev_val <- new_val
         end_time <- Sys.time()
         time_taken <- end_time - start_time
         print(paste("Iteration Time: ", time_taken))
-
     }
     # return the updated weights
     weights <- data.table(
