@@ -62,11 +62,7 @@ random_descent_hh <- function(inp, cond, num_iter, u_factor, wflag) {
         # store the previous OFVal
         prev_val <- of_val
         start_time <- Sys.time()
-        # get a random integer such that SPORDER == 1
-        # r <- sample(nrow(inp), 1, replace=FALSE)
-        # while(inp[r]$SPORDER != 1){
-        #     r <- sample(nrow(inp), 1, replace=FALSE)
-        # }
+        # get a random integer ordering
         r_int <- sample(nrow(inp), nrow(inp), replace=FALSE)
         # print(paste("r: ", r))
         # iterate through the rows
@@ -74,33 +70,7 @@ random_descent_hh <- function(inp, cond, num_iter, u_factor, wflag) {
             if (inp[r]$SPORDER == 1){
                 of_new <- of_val
                 child <- cond[["children"]][[r]]
-                # print(paste("r: ", r))
-                # print(child)
                 w_delta_h <- u_factor * weights[["WGTP"]][r]
-                # print(paste("DelWGTP: ", w_delta_h))
-                # for (c in child) {
-                #     w_delta_p <- u_factor * weights[["PWGTP"]][c]
-                #     print(paste("DelPWGTP: ", w_delta_p))
-                #     for (b in seq(n_blocks)){
-                #         if (n_tables[[b]] == 0) {next}
-                #         c_flag <- TRUE
-                #         for (t in seq(n_tables[[b]])){
-                #             id <- ids[[b]][[t]][c]
-                #             if (id == 0) {next}
-                #             target_val <- targets[[b]][[t]][id]
-                #             base_old <- baselines[[b]][[t]][id]
-                #             base_new_p <- base_old + w_delta_p
-                #             base_new_h <- base_old + w_delta_h
-                #             if (cond[[b]][["special_cond_var"]] == "none"){
-                #                 of_new <- of_new - (target_val - base_old) ^ 2 + (target_val - base_new_p) ^ 2
-                #             }
-                #             else if (cond[[b]][["special_cond_var"]] == "SPORDER" & c_flag){
-                #                 of_new <- of_new - (target_val - base_old) ^ 2 + (target_val - base_new_h) ^ 2
-                #                 c_flag <- FALSE
-                #             }
-                #         }
-                #     }
-                # }
 
                 for (b in seq(n_blocks)){
                     if (n_tables[[b]] == 0) {next}
@@ -116,40 +86,19 @@ random_descent_hh <- function(inp, cond, num_iter, u_factor, wflag) {
                             base_new_p <- base_old + w_delta_p
                             base_new_h <- base_old + w_delta_h
                             if (cond[[b]][["special_cond_var"]] == "none"){
-                                of_new <- of_new - (target_val - base_old) ^ 2 + (target_val - base_new_p) ^ 2
+                                of_new <- of_new - ((target_val - base_old) ^ 2) + ((target_val - base_new_p) ^ 2)
                             }
                             else if (cond[[b]][["special_cond_var"]] == "SPORDER" & c_flag){
-                                of_new <- of_new - (target_val - base_old) ^ 2 + (target_val - base_new_h) ^ 2
+                                of_new <- of_new - ((target_val - base_old) ^ 2) + ((target_val - base_new_h) ^ 2)
                                 c_flag <- FALSE
                             }
                         }
                     }
                 }
                 of_new <- of_new
+
                 # check if OFVal improves
                 if (of_new < of_val){
-                #     for (c in child){
-                #         w_delta_p <- u_factor * weights[["PWGTP"]][c]
-                #         weights[["WGTP"]][c] <- weights[["WGTP"]][c] + w_delta_h
-                #         weights[["PWGTP"]][c] <- weights[["PWGTP"]][c] + w_delta_p
-                #         for (b in seq(n_blocks)){
-                #             c_flag <- TRUE
-                #             if (n_tables[[b]] == 0) {next}
-                #             for (t in seq(n_tables[[b]])){
-                #                 id <- ids[[b]][[t]][c]
-                #                 if (id == 0){next}
-                #                 if (cond[[b]][["special_cond_var"]] == "none"){
-                #                     baselines[[b]][[t]][id] <- baselines[[b]][[t]][id] + w_delta_p
-                #                 }
-                #                 else if (cond[[b]][["special_cond_var"]] == "SPORDER" & c_flag){
-                #                     baselines[[b]][[t]][id] <- baselines[[b]][[t]][id] + w_delta_h
-                #                     c_flag <- FALSE
-                #                 }
-                #             }
-                #         }
-                #     }
-
-                    
                     # modify the baseline vectors
                     for (b in seq(n_blocks)){
                         if (n_tables[[b]] == 0) {next}
@@ -177,8 +126,8 @@ random_descent_hh <- function(inp, cond, num_iter, u_factor, wflag) {
                         weights[["WGTP"]][c] <- weights[["WGTP"]][c] + w_delta_h
                         weights[["PWGTP"]][c] <- weights[["PWGTP"]][c] + w_delta_p
                     }
-
                     of_val <- of_new
+
                 }
                 else {
                     of_new <- of_val
@@ -196,10 +145,10 @@ random_descent_hh <- function(inp, cond, num_iter, u_factor, wflag) {
                                 base_new_p <- base_old - w_delta_p
                                 base_new_h <- base_old - w_delta_h
                                 if (cond[[b]][["special_cond_var"]] == "none"){
-                                    of_new <- of_new - (target_val - base_old) ^ 2 + (target_val - base_new_p) ^ 2
+                                    of_new <- of_new - ((target_val - base_old) ^ 2) + ((target_val - base_new_p) ^ 2)
                                 }
                                 else if (cond[[b]][["special_cond_var"]] == "SPORDER" & c_flag){
-                                    of_new <- of_new - (target_val - base_old) ^ 2 + (target_val - base_new_h) ^ 2
+                                    of_new <- of_new - ((target_val - base_old) ^ 2) + ((target_val - base_new_h) ^ 2)
                                     c_flag <- FALSE
                                 }
                             }
@@ -265,5 +214,12 @@ random_descent_hh <- function(inp, cond, num_iter, u_factor, wflag) {
         time_taken <- end_time - start_time
         print(paste("Iter No.: ", iter, " | Time: ", time_taken))
     }
+    # return the updated weights
+    weights <- data.table(
+                PWGTP = weights[["PWGTP"]],
+                WGTP = weights[["WGTP"]]
+                )
+    weights <- mutate(weights, SERIALNO=inp$SERIALNO)
+    weights <- mutate(weights, SPORDER=inp$SPORDER)
     return(weights)
 }
