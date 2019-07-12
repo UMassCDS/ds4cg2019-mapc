@@ -1,10 +1,14 @@
 # This script is meant to process MAPC reweighting config files. Please see the README for the format of the config file.
-
+# import the libraries
 suppressPackageStartupMessages(library(rjson))
 suppressPackageStartupMessages(library(dplyr))
 suppressPackageStartupMessages(library(data.table))
 suppressPackageStartupMessages(library(bit64))
 
+# specify the config file name
+config_file <- "reweighting_config_hh.json"
+
+# define the generator function to check whether a single record belongs to a table cell
 generator <- function(condition){ # Need to do this because R.
     force(condition)
     expr <- parse(text=condition)
@@ -18,30 +22,31 @@ generator <- function(condition){ # Need to do this because R.
     return(ret)
 }
 
-get_hvec <- function(dim_vec){ # Get the helping vector for moving between coordinates and indices
+# Get the helping vector for moving between coordinates and indices
+get_hvec <- function(dim_vec){ 
     num_dims <- length(dim_vec)
     hvec <- vector(mode="numeric", length=num_dims)
     for(i in seq(num_dims)){
         if(i < num_dims){
-            hvec[i] <- prod(dim_vec[(i+1):num_dims])  # Component i of hvec denotes after how many indices that dimension changes value(condition)
+            # Component i of hvec denotes after how many indices that dimension changes value(condition)
+            hvec[i] <- prod(dim_vec[(i+1):num_dims])  
         }
-        else{   # i == num_dims
+        else{   
+            # i == num_dims
             hvec[i] <- 1
         }
     }
     return(hvec)
 }
 
-config_file <- "reweighting_config_hh.json"
-
 config <- fromJSON(file=config_file)
 
+# get the number of blocks
 num_blocks <- length(config[["blocks"]])
-# num_tables <- length(config[["tables"]])
 
+# get the file name
 file_name <- config[["file_name"]]
-# target_var <- config[["target_var"]]
-
+# read the data
 data <- fread(file=file_name)
 
 
@@ -92,17 +97,20 @@ for (b in seq(num_blocks)){
   
         # The following 2 functions are for switching between indices and coordinates
         # These functions will make use of dim_vec, ivec, hvec and num_dims objects created above
-  
-        index2coord <- function(index){ # Takes as input an index and outputs the coordinates as a vector
+
+        index2coord <- function(index){ 
+            # Takes as input an index and outputs the coordinates as a vector
             for(i in seq(num_dims)){
             ivec[i] <- ceiling(index/hvec[i])
-            if(ivec[i] == 0){ ivec[i] <- dim_vec[i] } # This needs to be done because vectors are 1-indexed in R
+            # This needs to be done because vectors are 1-indexed in R
+            if(ivec[i] == 0){ ivec[i] <- dim_vec[i] } 
             index <- index %% hvec[i]
             }
             return(ivec)
         }
-  
-        coord2index <- function(ivec){  # Takes as input the coordinates as a vector and outputs an index
+
+        # Takes as input the coordinates as a vector and outputs an index
+        coord2index <- function(ivec){  
             index <- 1
             for(i in seq(num_dims)){
                 if(ivec[i] > 1){
@@ -120,57 +128,55 @@ for (b in seq(num_blocks)){
         d <- data %>%
         select(c(unlist(var_names), target_var)) %>%
         as.data.table()
-        
-        # modify the data table for the special condition 
-        # if (special_cond_var != "none") {
-        #     ev_expr <- paste("filter(d, ", special_cond_var, "==", special_cond_target, ")")
-        #     d <- eval(parse(text=ev_expr))
-        #     ev_expr <- paste("select(d, -", special_cond_var, ")")
-        #     d <- eval(parse(text=ev_expr))
-        #     var_names <- var_names[var_names != special_cond_var]
-        # }
 
-        # make a list of every child of parent of a HH
+        # make a list of every child of parent of a single HH
         c_flag <- TRUE
         children <- 0
         if ((special_cond_var == "SPORDER") & c_flag){
+            # use a flag to compute the children only once per savefile generation
             c_flag <- FALSE
+            # init a list to store children indices
             children <- list()
             for (r in seq(nrow(d))){
                 if (d[r]$SPORDER == 1){
                     c_list <- c()
+                    # use a flag to separate one HH from the next
                     h_flag <- TRUE
                     r_temp <- r
+                    # iterate through members of a single HH
                     while (h_flag == TRUE){
+                        # add the new HH member to the list
                         c_list <- c(c_list, r_temp)
                         r_temp <- r_temp + 1
+                        # exit out of the loop if the next HH is selected
                         if (d[r_temp]$SPORDER == 1 | r_temp > nrow(d)){
                             h_flag <- FALSE
                         }
                     }
+                    # add the current HH list to the children object
                     children[[r]] <- c_list
                 }
                 else {
                     children[[r]] <- 0
                 }
-
             }
         }
 
         # modify the data table for the special condition 
         if (special_cond_var != "none") {
+            # filter the special condition 
             ev_expr <- paste("filter(d, ", special_cond_var, "==", special_cond_target, ")")
             d <- eval(parse(text=ev_expr))
-            
+            # remove the special condition since it's redundant
             ev_expr <- paste("select(d, -c(", special_cond_var, ")) %>% as.data.table()")
             d <- eval(parse(text=ev_expr))
-            
+            # remove the special condition variable from the list of variable names as well
             var_names <- var_names[var_names != special_cond_var]
         }
 
         # get the ids for computation of baselines (only parents)
-        
-        ids <- apply(d, 1, function(row){ # For each row, find which index of the target matrix the weight is to be added to
+        ids <- apply(d, 1, function(row){ 
+            # For each row, find which index of the target matrix the weight is to be added to
             for(i in seq(num_dims)){
                 for(j in seq(dim_vec[i])){
                     truth_val <- funcs[[i]][[j]](row[i])
@@ -186,24 +192,31 @@ for (b in seq(num_blocks)){
             index <- coord2index(ivec)
             return(index)
         })
-        
-        num_cells <- prod(dim_vec)  # Number of cells in the target matrix
+
+        # Number of cells in the target matrix
+        num_cells <- prod(dim_vec)  
         target_vector <- vector(mode="numeric", length=num_cells)
 
+        # counting for the specific table cells
         for(i in seq(length(ids))){
+            # get the id of the particular record which matches it with the table cell
             id <- ids[i]
             if(id > 0){
+                # generate a parse string picking out the specific target variable from the data for the record
                 val_exp <- paste("d[i]$",target_var)
+                # get the value from the data
                 val <- eval(parse(text=val_exp))
-                
+                # check if the variable is an integer, if not, report an error
                 if (!is.integer(val)){
                     print("Value Error (Non-Integer)")
                     quit(status=1)
                 }
-                target_vector[id] <- target_vector[id] + val  # Last column of d is target variable
+                # add the value to the baseline vector
+                target_vector[id] <- target_vector[id] + val  
             }
         }
 
+        # regenerate the data for id computation (for both parents and children)
         d <- data %>%
         select(c(unlist(var_names), target_var)) %>%
         as.data.table()
@@ -226,7 +239,8 @@ for (b in seq(num_blocks)){
             return(index)
         })
         
-        tf <- paste(c(name, ".csv"), collapse="") # Target file name
+        # Target file name
+        tf <- paste(c(name, ".csv"), collapse="") 
   
         header <- paste(unlist(var_names), collapse=",")
         header <- paste(c(header, "BASELINE", "TARGET"), collapse=",")
@@ -241,7 +255,8 @@ for (b in seq(num_blocks)){
             row <- paste(c(row, target_vector[n], target_vector[n]), collapse=",")
             write(row, file=tf, append=TRUE)
         }
-  
+
+        # save all the attributes pertaining to a specific table
         new_list <- list()
         new_list[[1]] <- name
         new_list[[2]] <- dim_vec
@@ -249,20 +264,22 @@ for (b in seq(num_blocks)){
         new_list[[4]] <- var_types
         new_list[[5]] <- conds
         new_list[[6]] <- funcs
-        new_list[[7]] <- ids    # Indices of the input CSV rows into the target vector
+        # Indices of the input CSV rows into the target vector
+        new_list[[7]] <- ids    
         block_list[[t]] <- new_list
         e_t <- Sys.time()
+        # report the times taken
         print(paste("Block: ", b, " | Table: ", t, " | Time: ", (e_t - s_t)))
     }
-
+    # save the attributes pertaining to a particular block
     block_list[["target_var"]]  <- target_var
     block_list[["num_tables"]] <- num_tables
     block_list[["special_cond_var"]] <- special_cond_var
     block_list[["special_cond_target"]] <- special_cond_target
     save_list[[b]] <- block_list
 }
-
+# save the attributes pertaining to the entire dataset
 save_list[["file_name"]] <- file_name
 save_list[["children"]] <- children
-
+# save the RData object
 saveRDS(save_list, file="savefilehh.RData")
