@@ -5,7 +5,7 @@ suppressPackageStartupMessages(library(readr))
 suppressPackageStartupMessages(library(dplyr))
 
 # source custom functions
-source("algo_hh_fixed.R")
+source("algo_hh.R")
 
 # read input and base matrix files
 # read the input file
@@ -13,7 +13,7 @@ inp <- data.table::fread(file="POP2016_temp.csv")
 # read the savefile RData object
 conditions <- read_rds("savefilehh.RData")
 # set the number of iterations
-num_iters <- 35
+num_iters <- 350
 # set the update factor
 update_factor <- 0.01
 # set the write flag
