@@ -5,7 +5,7 @@ suppressPackageStartupMessages(library(readr))
 suppressPackageStartupMessages(library(dplyr))
 
 # source custom functions
-source("algo_hh_optim.R")
+source("algo_hh_fixed.R")
 
 # read input and base matrix files
 # read the input file

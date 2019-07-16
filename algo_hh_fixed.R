@@ -121,6 +121,7 @@ random_descent_hh <- function(inp, cond, num_iter, u_factor, wflag) {
                                 # print(paste("base_new_p", base_new_p))
                                 # print(paste("start: ", of_new))
                                 of_new <- of_new - ((target_val - base_old) ^ 2) + ((target_val - base_new_p) ^ 2)
+                                baselines[[b]][[t]][id] <- baselines[[b]][[t]][id] + w_delta_p
                                 # print(paste("end: ", of_new))
                             }
                             else if (cond[[b]][["special_cond_var"]] == "SPORDER"){
@@ -129,6 +130,7 @@ random_descent_hh <- function(inp, cond, num_iter, u_factor, wflag) {
                                 # print(paste("base_new_h", base_new_h))
                                 # print(paste("start: ", of_new))
                                 of_new <- of_new - ((target_val - base_old) ^ 2) + ((target_val - base_new_h) ^ 2)
+                                baselines[[b]][[t]][id] <- baselines[[b]][[t]][id] + w_delta_h
                                 # print(paste("end: ", of_new))
                                 break
                             }
@@ -137,39 +139,10 @@ random_descent_hh <- function(inp, cond, num_iter, u_factor, wflag) {
                         # print(paste("CompOFValEnd: ", of_new))
                     }
                 }
+                # compute the new OFVal
+                # of_new <- calc_objective(targets, baselines)
                 # check if OFVal improves
                 if (of_new < of_val){
-                    # print("increase")
-                    # modify the baseline vectors
-                    for (b in seq(n_blocks)){
-                        # skip if no tables
-                        if (n_tables[[b]] == 0) {next}
-                        for (t in seq(n_tables[[b]])){
-                            # iterate though members of the the HH
-                            # print(paste("B: ", b, " | T: ", t))
-                            for (c in child){
-                                w_delta_p <- u_factor * weights[["PWGTP"]][c]
-                                id <- ids[[b]][[t]][c]
-                                # skip if it doesn't belong to any of the cells
-                                if (id == 0) {next}
-                                # modify the baselines accordingly
-                                # print(baselines[[b]][[t]][id])
-                                # if (t == 2){
-                                #     print(paste("WDelP: ", w_delta_p))
-                                #     print(paste("WDelH: ", w_delta_h))
-                                # }
-                                if (cond[[b]][["special_cond_var"]] == "none"){
-                                    baselines[[b]][[t]][id] <- baselines[[b]][[t]][id] + w_delta_p
-                                }
-                                else if (cond[[b]][["special_cond_var"]] == "SPORDER"){
-                                    baselines[[b]][[t]][id] <- baselines[[b]][[t]][id] + w_delta_h
-                                    break
-                                }
-                                # print(paste("Base: ", baselines[[b]][[t]][id]))
-                                # print(calc_objective(targets, baselines))
-                            }
-                        }   
-                    }
                     # modify the weight vectors
                     for (c in child){
                         w_delta_p <- u_factor * weights[["PWGTP"]][c]
@@ -183,7 +156,7 @@ random_descent_hh <- function(inp, cond, num_iter, u_factor, wflag) {
                 # if objective does not improve, go in the other direction
                 else {
                     # print("decrease")
-                    of_new <- of_val
+                    # of_new <- of_val
                     for (b in seq(n_blocks)){
                         # skip if no tables
                         if(n_tables[[b]] == 0) {next}
@@ -198,45 +171,27 @@ random_descent_hh <- function(inp, cond, num_iter, u_factor, wflag) {
                                 # print(paste("DelPWGTP: ", w_delta_p))
                                 target_val <- targets[[b]][[t]][id]
                                 base_old <- baselines[[b]][[t]][id]
-                                base_new_p <- base_old - w_delta_p
-                                base_new_h <- base_old - w_delta_h
+                                base_new_p <- base_old - (w_delta_p * 2)
+                                base_new_h <- base_old - (w_delta_h * 2)
                                 # modify the objective function value
                                 if (cond[[b]][["special_cond_var"]] == "none"){
                                     of_new <- of_new - ((target_val - base_old) ^ 2) + ((target_val - base_new_p) ^ 2)
+                                    baselines[[b]][[t]][id] <- baselines[[b]][[t]][id] - (w_delta_p * 2)
                                     # print(of_new)
                                 }
                                 else if (cond[[b]][["special_cond_var"]] == "SPORDER"){
                                     of_new <- of_new - ((target_val - base_old) ^ 2) + ((target_val - base_new_h) ^ 2)
+                                    baselines[[b]][[t]][id] <- baselines[[b]][[t]][id] - (w_delta_h * 2)
                                     # print(of_new)
                                     break
                                 }
                             }
                         }
                     }
+                    # compute the new OFVal
+                    # of_new <- calc_objective(targets, baselines)
                     # check if OFVal improves
                     if (of_new < of_val){
-                        # modify the baseline vectors
-                        for (b in seq(n_blocks)){
-                            # skip if no tables
-                            if (n_tables[[b]] == 0) {next}
-                            for (t in seq(n_tables[[b]])){
-                                for (c in child){
-                                    w_delta_p <- u_factor * weights[["PWGTP"]][c]
-                                    id <- ids[[b]][[t]][c]
-                                    # skip if it doesn't belong to any of the cells
-                                    if (id == 0) {next}
-                                    # modify the baselines accordingly
-                                    if (cond[[b]][["special_cond_var"]] == "none"){
-                                        baselines[[b]][[t]][id] <- baselines[[b]][[t]][id] - w_delta_p
-                                    }
-                                    else if (cond[[b]][["special_cond_var"]] == "SPORDER"){
-                                        baselines[[b]][[t]][id] <- baselines[[b]][[t]][id] - w_delta_h
-                                        break
-                                    }
-                                }
-                            
-                            }
-                        }
                         # modify the weight vectors
                         for (c in child){
                             w_delta_p <- u_factor * weights[["PWGTP"]][c]
@@ -245,6 +200,44 @@ random_descent_hh <- function(inp, cond, num_iter, u_factor, wflag) {
                         }
                         # update the objective value
                         of_val <- of_new
+                    }
+                    # otherwise, make no changes
+                    else {
+                        # print("decrease")
+                        # of_new <- of_val
+                        for (b in seq(n_blocks)){
+                            # skip if no tables
+                            if(n_tables[[b]] == 0) {next}
+                            # iterate through the tables
+                            for (t in seq(n_tables[[b]])){
+                                # iterate through members of the HH
+                                for (c in child){
+                                    id <- ids[[b]][[t]][c]
+                                    # skip if it doesn't belong to any of the cells
+                                    if (id == 0) {next}
+                                    w_delta_p <- u_factor * weights[["PWGTP"]][c]
+                                    # print(paste("DelPWGTP: ", w_delta_p))
+                                    # target_val <- targets[[b]][[t]][id]
+                                    # base_old <- baselines[[b]][[t]][id]
+                                    # base_new_p <- base_old + (w_delta_p)
+                                    # base_new_h <- base_old + (w_delta_h)
+                                    # modify the objective function value
+                                    if (cond[[b]][["special_cond_var"]] == "none"){
+                                        # of_new <- of_new - ((target_val - base_old) ^ 2) + ((target_val - base_new_p) ^ 2)
+                                        baselines[[b]][[t]][id] <- baselines[[b]][[t]][id] + w_delta_p
+                                        # print(of_new)
+                                    }
+                                    else if (cond[[b]][["special_cond_var"]] == "SPORDER"){
+                                        # of_new <- of_new - ((target_val - base_old) ^ 2) + ((target_val - base_new_h) ^ 2)
+                                        baselines[[b]][[t]][id] <- baselines[[b]][[t]][id] + w_delta_h
+                                        # print(of_new)
+                                        break
+                                    }
+                                }
+                            }
+                        }
+                        # compute the new OFVal
+                        # of_new <- calc_objective(targets, baselines)
                     }
                 }
                 # print(paste("final new: ", of_new))
@@ -266,8 +259,9 @@ random_descent_hh <- function(inp, cond, num_iter, u_factor, wflag) {
             }
         }
         # report the new objective value
-        of_temp <- calc_objective(targets, baselines)
-        print(paste("OFVal: ", of_val, " | Temp: ", of_temp))
+        # of_temp <- calc_objective(targets, baselines)
+        # print(paste("OFVal: ", of_val, " | Temp: ", of_temp))
+        print(paste("OFVal: ", of_val))
         new_val <- of_val
         # check for the early exit condition
         if (abs(new_val - prev_val) == 0) {
