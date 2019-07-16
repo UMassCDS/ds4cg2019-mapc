@@ -3,6 +3,9 @@
 # import libraries
 library(dplyr)
 library(data.table)
+# increase the number of significant digits
+options(digits=12)
+# library(bit64)
 # import custom functions
 source("objective.R")
 
@@ -47,8 +50,8 @@ random_descent_hh <- function(inp, cond, num_iter, u_factor, wflag) {
             table <- cond[[b]][[t]]
             data <- data.table::fread(file=paste(table[[1]], ".csv", sep=""))
             # get the ids, baseline and target values
-            t_baselines[[t]] <- as.numeric(data[["BASELINE"]])
-            t_targets[[t]] <- as.numeric(data[["TARGET"]])
+            t_baselines[[t]] <- as.double(data[["BASELINE"]]) 
+            t_targets[[t]] <- as.double(data[["TARGET"]]) 
             t_ids[[t]] <- cond[[b]][[t]][[7]]
             # add a new column containing the intermediate weights 
             data <- mutate(data, INTER=t_baselines[[t]])
@@ -69,6 +72,7 @@ random_descent_hh <- function(inp, cond, num_iter, u_factor, wflag) {
         start_time <- Sys.time()
         # get a random integer ordering
         r_int <- sample(nrow(inp), nrow(inp), replace=FALSE)
+        # r_int <- c(4)
         # iterate through the rows
         for (r in r_int){
             # check if it's the start of a new HH
@@ -85,9 +89,9 @@ random_descent_hh <- function(inp, cond, num_iter, u_factor, wflag) {
                     if (n_tables[[b]] == 0) {next}
                     # iterate through each table
                     for (t in seq(n_tables[[b]])){
-                        # use a flag such that the objective is modified only once for each HH entry (only for WGTP)
-                        c_flag <- TRUE
                         # iterate through each member of the HH
+                        # print("new")
+                        # print(paste("CompOFVal Start: ", of_new))
                         for (c in child){
                             id <- ids[[b]][[t]][c]
                             # skip if it doesn't belong to any of the cells
@@ -97,29 +101,48 @@ random_descent_hh <- function(inp, cond, num_iter, u_factor, wflag) {
                             # get the baseline and target value
                             target_val <- targets[[b]][[t]][id]
                             base_old <- baselines[[b]][[t]][id]
+
                             # get the new baseline values for both PWGTP and WGTP
                             base_new_p <- base_old + w_delta_p
                             base_new_h <- base_old + w_delta_h
+
+                            # if (t == 2){
+                            #     print(paste("target_val", target_val))
+                            #     print(paste("base_old: ", base_old))
+                            #     print(paste("base_new_p: ", base_new_p))
+                            # }
                             # get the modified objective function value
+                            
                             if (cond[[b]][["special_cond_var"]] == "none"){
+                                # print("person")
+                                # print(paste("WDelP: ", w_delta_p))
+                                # print(paste("base_new_p", base_new_p))
+                                # print(paste("start: ", of_new))
                                 of_new <- of_new - ((target_val - base_old) ^ 2) + ((target_val - base_new_p) ^ 2)
+                                # print(paste("end: ", of_new))
                             }
-                            else if (cond[[b]][["special_cond_var"]] == "SPORDER" & c_flag){
+                            else if (cond[[b]][["special_cond_var"]] == "SPORDER"){
+                                # print("household")
+                                # print(paste("WDelH: ", w_delta_h))
+                                # print(paste("base_new_h", base_new_h))
+                                # print(paste("start: ", of_new))
                                 of_new <- of_new - ((target_val - base_old) ^ 2) + ((target_val - base_new_h) ^ 2)
-                                c_flag <- FALSE
+                                # print(paste("end: ", of_new))
+                                break
                             }
                         }
+                        # break
+                        # print(paste("CompOFValEnd: ", of_new))
                     }
                 }
                 # check if OFVal improves
                 if (of_new < of_val){
+                    # print("increase")
                     # modify the baseline vectors
                     for (b in seq(n_blocks)){
                         # skip if no tables
                         if (n_tables[[b]] == 0) {next}
                         for (t in seq(n_tables[[b]])){
-                            # flag to indicate change in WGTP 
-                            c_flag <- TRUE
                             # iterate though members of the the HH
                             for (c in child){
                                 w_delta_p <- u_factor * weights[["PWGTP"]][c]
@@ -127,16 +150,16 @@ random_descent_hh <- function(inp, cond, num_iter, u_factor, wflag) {
                                 # skip if it doesn't belong to any of the cells
                                 if (id == 0) {next}
                                 # modify the baselines accordingly
+                                # print(baselines[[b]][[t]][id])
                                 if (cond[[b]][["special_cond_var"]] == "none"){
                                     baselines[[b]][[t]][id] <- baselines[[b]][[t]][id] + w_delta_p
                                 }
-                                else if (cond[[b]][["special_cond_var"]] == "SPORDER" & c_flag){
+                                else if (cond[[b]][["special_cond_var"]] == "SPORDER"){
                                     baselines[[b]][[t]][id] <- baselines[[b]][[t]][id] + w_delta_h
-                                    c_flag <- FALSE
+                                    break
                                 }
                             }
-                            
-                        }
+                        }   
                     }
                     # modify the weight vectors
                     for (c in child){
@@ -146,17 +169,17 @@ random_descent_hh <- function(inp, cond, num_iter, u_factor, wflag) {
                     }
                     # update the objective value
                     of_val <- of_new
+                    # print(paste("Updated OFVal: ", of_val))
                 }
                 # if objective does not improve, go in the other direction
                 else {
+                    # print("decrease")
                     of_new <- of_val
                     for (b in seq(n_blocks)){
                         # skip if no tables
                         if(n_tables[[b]] == 0) {next}
                         # iterate through the tables
                         for (t in seq(n_tables[[b]])){
-                            # flag to indicate change in WGTP
-                            c_flag <- TRUE
                             # iterate through members of the HH
                             for (c in child){
                                 id <- ids[[b]][[t]][c]
@@ -171,10 +194,12 @@ random_descent_hh <- function(inp, cond, num_iter, u_factor, wflag) {
                                 # modify the objective function value
                                 if (cond[[b]][["special_cond_var"]] == "none"){
                                     of_new <- of_new - ((target_val - base_old) ^ 2) + ((target_val - base_new_p) ^ 2)
+                                    # print(of_new)
                                 }
-                                else if (cond[[b]][["special_cond_var"]] == "SPORDER" & c_flag){
+                                else if (cond[[b]][["special_cond_var"]] == "SPORDER"){
                                     of_new <- of_new - ((target_val - base_old) ^ 2) + ((target_val - base_new_h) ^ 2)
-                                    # c_flag <- FALSE
+                                    # print(of_new)
+                                    break
                                 }
                             }
                         }
@@ -186,8 +211,6 @@ random_descent_hh <- function(inp, cond, num_iter, u_factor, wflag) {
                             # skip if no tables
                             if (n_tables[[b]] == 0) {next}
                             for (t in seq(n_tables[[b]])){
-                                # flag to indicate change in WGTP
-                                c_flag <- TRUE
                                 for (c in child){
                                     w_delta_p <- u_factor * weights[["PWGTP"]][c]
                                     id <- ids[[b]][[t]][c]
@@ -197,9 +220,9 @@ random_descent_hh <- function(inp, cond, num_iter, u_factor, wflag) {
                                     if (cond[[b]][["special_cond_var"]] == "none"){
                                         baselines[[b]][[t]][id] <- baselines[[b]][[t]][id] - w_delta_p
                                     }
-                                    else if (cond[[b]][["special_cond_var"]] == "SPORDER" & c_flag){
+                                    else if (cond[[b]][["special_cond_var"]] == "SPORDER"){
                                         baselines[[b]][[t]][id] <- baselines[[b]][[t]][id] - w_delta_h
-                                        c_flag <- FALSE
+                                        break
                                     }
                                 }
                             
@@ -215,6 +238,10 @@ random_descent_hh <- function(inp, cond, num_iter, u_factor, wflag) {
                         of_val <- of_new
                     }
                 }
+                # print(paste("final new: ", of_new))
+                # print(paste("final val: ", of_val))
+                # print(paste("OFVAL: ", calc_objective(targets, baselines)))
+                # quit()
             }
         }
         # write the baselines to file

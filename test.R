@@ -13,9 +13,9 @@ inp <- data.table::fread(file="POP2016_temp.csv")
 # read the savefile RData object
 conditions <- read_rds("savefilehh.RData")
 # set the number of iterations
-num_iters <- 3
+num_iters <- 35
 # set the update factor
-update_factor <- 0.05
+update_factor <- 0.01
 # set the write flag
 write_flag <- TRUE
 
