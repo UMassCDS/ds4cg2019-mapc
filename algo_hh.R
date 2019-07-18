@@ -71,11 +71,14 @@ random_descent_hh <- function(inp, cond, num_iter, u_factor, wflag) {
         prev_val <- of_val
         start_time <- Sys.time()
         # get a random integer ordering
-        r_int <- sample(nrow(inp), nrow(inp), replace=FALSE)
+        # r_int <- sample(nrow(inp), nrow(inp), replace=FALSE)
+        
+        r_int <- which(inp$SPORDER == 1)
+        
         # iterate through the rows
         for (r in r_int){
             # check if it's the start of a new HH
-            if (inp[r]$SPORDER == 1){
+            # if (inp[r]$SPORDER == 1){
                 # store the objective function value
                 of_new <- of_val
                 # get the list of people in the HH
@@ -195,7 +198,7 @@ random_descent_hh <- function(inp, cond, num_iter, u_factor, wflag) {
                         }
                     }
                 }
-            }
+            # }
         }
         
         # write the baselines to file
