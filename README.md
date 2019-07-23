@@ -9,55 +9,85 @@ The target tables should be entered into the file "reweighting_config.json". The
 ```
 
 {
-  "file_name": "ss16pma.csv",
-  "target_var":  "PWGTP",
-  "tables": [
-    {
-      "name": "FirstTable",
-      "dims": [
+    "file_name": "testhh.csv",
+    "blocks" : [
         {
-          "var": "AGEP",
-          "type": "NUM",
-          "conditions": [
-            "x <= 20",
-            "20 < x & x <= 40",
-            "40 < x & x <= 60",
-            "x > 60"
-          ]
+            "target_var":  "PWGTP",
+            "special_cond_var": "none",
+            "special_cond_target": "none",
+            "tables": [
+                {
+                  "name": "FirstTable",
+                  "dims": [
+                    {
+                      "var": "AGEP",
+                      "type": "NUM",
+                      "conditions": [
+                        "x <= 2 ",
+                        "2 < x & x <= 4",
+                        "4 < x & x <= 6",
+                        "x > 6"
+                      ]
+                    },
+                    {
+                        "var": "SEX",
+                        "type": "NUM",
+                        "conditions": [
+                            "x == 1",
+                            "x == 2"
+                        ]
+                    }
+                  ]
+                }
+            ]
         },
         {
-          "var": "WAGP",
-          "type": "NUM",
-          "conditions": [
-            "x <= 50000",
-            "x > 50000 & x <= 80000",
-            "x > 80000 & x <= 120000",
-            "x > 120000"
-          ]
+            "target_var": "WGTP",
+            "special_cond_var": "SPORDER",
+            "special_cond_target": "1",
+            "tables": [
+                {
+                    "name": "SecondTable",
+                    "dims": [
+                        {
+                            "var": "ADJINC",
+                            "type": "NUM",
+                            "conditions": [
+                                "x == 3",
+                                "x == 4",
+                                "x == 5",
+                                "x == 6"
+                            ]
+                        },
+                        {
+                            "var": "HHTYPE",
+                            "type": "NUM",
+                            "conditions": [
+                                "x == 1",
+                                "x == 2",
+                                "x > 3"
+                            ]
+                        }
+                    ]
+                }
+            ]
         }
-      ]
-    },
-    {
-      "name": "SecondTable",
-      "dims": [
-        {
-          "var": "SEX",
-          "type": "NUM",
-          "conditions": [
-            "x == 1",
-            "x == 2"
-          ]
-        }
-      ]
-    }
-  ]
+    ]
 }
 
 ```
 
 > * "file_name" specifies the input CSV file (the PUMS dataset).
 
-> * "target_var" specifies the name of the target variable in the input CSV file.
+> * Each block represents a different target variable, along with any special conditions to be imposed on the block.
+
+> * "target_var" specifies the name of the target variable for the tables in the particular block.
+
+> * "special_cond_var" specifies the name of the variable under which any special filtering condition needs to be applied.
+
+> * "special_cond_target" specifies the value of the special condition variable for filtering. 
+
+Each block consists of a set of tables.
 
 Each object in the "tables" array represents a table. There can be an arbitrary amount of tables.
 
