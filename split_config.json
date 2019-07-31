@@ -1,83 +1,385 @@
 {
-	"file_name": "POP2016.csv",
+	"file_name": "extract_for_test.csv",
 	"blocks": [
+	{
+		"target_var":  "WGTP",
+		"special_cond_var": "SPORDER",
+		"special_cond_target": "1",
+		"tables": [
+	  	{
+			"name": "B25007_Age_Tenure",
+			"dims": [
+		  	{
+				"var": "AGEP",
+				"type": "NUM",
+				"conditions": [
+			  		"15 <=x & x <=24",
+			  		"25 <= x & x <=34",
+			  		"35 <= x & x <=44",
+			  		"45 <= x & x <=54",
+			  		"55 <= x & x <=59",
+			  		"60 <= x & x <=64",
+			  		"65 <= x & x <=74",
+			  		"75 <= x & x <=84",
+			  		"85 <= x"
+				]
+		  	},
+			{
+				"var": "TEN",
+				"type": "NUM",
+				"conditions": [
+			  	"x==1 | x==2",
+			  	"x==3 | x==4"
+				]
+		  	},
+		  	{
+				"var": "TYPE",
+				"type": "NUM",
+				"conditions": [
+				  	"x==1"
+				]
+		  	},
+		  	{
+				"var": "PLACE",
+				"type": "NUM",
+				"conditions" : [
+			  		"x==1",
+			  		"x==2"
+				]
+		  	}
+		]
+	},
+	{
+		"name": "B25009_HHSize_Tenure",
+		"dims": [
 		{
-			"target_var":  "PWGTP",
-			"special_cond_var": "none",
-            "special_cond_target": "none",
-			"tables": [
-				{	
-					"name": "FirstTable",
-					"dims": [
-						{
-							"var": "LF",
-							"type": "NUM",
-							"conditions": [
-								"x == 1",
-								"x == 2"
-							]
-						},
-						{
-							"var": "EDU",
-							"type": "NUM",
-							"conditions": [
-								"x == 1",
-								"x == 2",
-								"x == 3",
-								"x == 4"
-							]
-						}
-					]
-				},
-				{
-					"name": "SecondTable",
-					"dims": [
-						{
-							"var": "AC3",
-							"type": "NUM",
-							"conditions": [
-								"x <= 5",
-								"x >=6 & x <= 10",
-								"x > 10"
-							]
-						}
-					]
-				},
-				{
-					"name": "ThirdTable",
-					"dims": [
-						{
-							"var": "SEX",
-							"type": "NUM",
-							"conditions": [
-								"x == 1",
-								"x == 2"
-							]
-						}
-					]
-				}
+			"var": "NP",
+			"type": "NUM",
+			"conditions" :[
+				"x==1",
+			  	"x==2",
+			  	"x==3",
+			  	"x==4",
+			  	"x==5",
+			  	"x==6",
+			  	"x>=7"
 			]
 		},
 		{
-			"target_var": "WGTP",
-			"special_cond_var": "SPORDER",
-	  		"special_cond_target": "1",
-	  		"tables": [
-				{
-		  			"name": "FourthTable",
-		  			"dims": [
-						{
-			  				"var": "HHTYPE",
-			  				"type": "NUM",
-			  				"conditions": [
-								"x == 1",
-								"x == 2",
-								"x >= 3"
-			  				]
-						}
-					]
-				}
+			"var": "TEN",
+			"type": "NUM",
+			"conditions" :[
+			  	"x==1 | x==2",
+			  	"x==3 | x==4"
+			]
+		},
+		{
+			"var": "TYPE",
+			"type": "NUM",
+			"conditions": [
+			  	"x==1"
+			]
+		},
+		{
+			"var": "PLACE",
+			"type": "NUM",
+			"conditions" :[
+				"x==1",
+			  	"x==2"
 			]
 		}
+		]
+	}
+	]
+	},
+	{
+		"target_var": "PWGTP",
+		"special_cond_var": "none",
+		"special_cond_target": "none",
+		"tables" : [
+		{
+			"name": "B01001_Age_Sex",
+			"dims": [
+		  	{
+				"var": "AGEP",
+				"type": "NUM",
+				"conditions": [
+			  		"x <=4",
+			  		"5<= x & x<=9",
+			  		"10<= x & x<=14",
+			  		"15<= x & x<=17",
+			  		"18<= x & x<=19",
+			  		"x==20",
+			  		"x==21",
+			  		"22<= x & x<=24",
+			  		"25<= x & x<=29",
+			  		"30<= x & x<=34",
+			  		"35<= x & x<=39",
+			  		"40<= x & x<=44",
+			  		"45<= x & x<=49",
+			  		"50<= x & x<=54",
+			  		"55<= x & x<=59",
+			  		"60<= x & x<=61",
+			  		"62<= x & x<=64",
+			  		"65<= x & x<=66",
+			  		"67<= x & x<=69",
+			  		"70<= x & x<=74",
+			  		"75<= x & x<=79",
+			  		"80<= x & x<=84",
+			  		"x>=85"
+				]
+		  	},
+			{
+				"var": "SEX",
+				"type": "NUM",
+				"conditions": [
+			  		"x==1",
+			  		"x==2"
+				]
+		  	},
+		  	{
+				"var": "PLACE",
+				"type": "NUM",
+				"conditions": [
+					"x==1",
+				  	"x==2"
+				]
+		  	}
+		]
+	  },
+	  {
+		"name": "Age_HHType",
+		"dims": [
+		  {
+			"var": "AGEP",
+			"type": "NUM",
+			"conditions": [
+			  "x <= 4",
+			  "5 <= x & x <= 9",
+			  "10 <= x & x <= 14",
+			  "15 <= x & x <= 19",
+			  "20 <= x & x <= 24",
+			  "25 <= x & x <= 29",
+			  "30 <= x & x <= 34",
+			  "35 <= x & x <= 39",
+			  "40 <= x & x <= 44",
+			  "45 <= x & x <= 49",
+			  "50 <= x & x <= 54",
+			  "55 <= x & x <= 59",
+			  "60 <= x & x <= 64",
+			  "65 <= x & x <= 69",
+			  "70 <= x & x <= 74",
+			  "75 <= x & x <= 79",
+			  "80 <= x"
+			]
+		  },
+		  {
+			"var": "TYPE",
+			"type": "NUM",
+			"conditions": [
+			  "x==1",
+			  "x==2",
+			  "x==3"
+			]
+		  },
+		  {
+			"var": "PLACE",
+			"type": "NUM",
+			"conditions": [
+			  "x==1",
+			  "x==2"
+			]
+		  }
+		]
+	  },
+	  {
+		"name": "B01001AG_Age_Race_Sex",
+		"dims": [
+		  {
+			"var": "AGEP",
+			"type": "NUM",
+			"conditions": [
+			  "x<=4",
+			  "5<= x & x <=9",
+			  "10<= x & x <=14",
+			  "15<= x & x <=17",
+			  "18<= x & x <=19",
+			  "20<= x & x <=24",
+			  "25<= x & x <=29",
+			  "30<= x & x <=34",
+			  "35<= x & x <=44",
+			  "45<= x & x <=54",
+			  "55<= x & x <=64",
+			  "65<= x & x <=74",
+			  "75<= x & x <=84",
+			  "x >= 85"
+			]
+		  },
+		  {
+			"var": "RAC1P",
+			"type": "NUM",
+			"conditions": [
+			  "x==1",
+			  "x==2",
+			  "3 <= x & x <=5",
+			  "x==6",
+			  "x==7",
+			  "x==8",
+			  "x==9"
+			]
+		  },
+		  {
+			"var": "SEX",
+			"type": "NUM",
+			"conditions": [
+			  "x==1",
+			  "x==2"
+			]
+		  },
+		  {
+			"var": "PLACE",
+			"type": "NUM",
+			"conditions": [
+			  "x==1",
+			  "x==2"
+			]
+		  }
+		]
+	  },
+	  {
+		"name": "B01001HI_Age_Hisp_Sex",
+		"dims": [
+		  {
+			"var": "AGEP",
+			"type": "NUM",
+			"conditions": [
+			  "x<=4",
+			  "5<= x & x <=9",
+			  "10<= x & x <=14",
+			  "15<= x & x <=17",
+			  "18<= x & x <=19",
+			  "20<= x & x <=24",
+			  "25<= x & x <=29",
+			  "30<= x & x <=34",
+			  "35<= x & x <=44",
+			  "45<= x & x <=54",
+			  "55<= x & x <=64",
+			  "65<= x & x <=74",
+			  "75<= x & x <=84",
+			  "x >= 85"
+			]
+		  },
+		  {
+			"var": "HISP",
+			"type": "NUM",
+			"conditions": [
+			  "x==1",
+			  "x > 1"
+			]
+		  },
+		  {
+			"var": "SEX",
+			"type": "NUM",
+			"conditions": [
+			  "x==1",
+			  "x==2"
+			]
+		  },
+		  {
+			"var": "WHITEORHISP",
+			"type": "NUM",
+			"conditions": [
+			  "x==1"
+			]
+		  },
+		  {
+			"var": "PLACE",
+			"type": "NUM",
+			"conditions": [
+			  "x==1",
+			  "x==2"
+			]
+		  }
+		]
+	  },
+	  {
+		"name": "B03001_HispOrigin",
+		"dims": [
+		  {
+			"var": "HISP",
+			"type": "NUM",
+			"conditions": [
+			  "x==1",
+			  "x==2",
+			  "x==3",
+			  "x==4",
+			  "x==5",
+			  "x==6",
+			  "x==7",
+			  "x==8",
+			  "x==9",
+			  "x==10",
+			  "x==11",
+			  "x==12",
+			  "x==13",
+			  "x==14",
+			  "x==15",
+			  "x==16",
+			  "x==17",
+			  "x==18",
+			  "x==19",
+			  "x==20",
+			  "x==21",
+			  "x==22",
+			  "x==23",
+			  "x==24"
+			]
+		  },
+		  {
+			"var": "PLACE",
+			"type": "NUM",
+			"conditions": [
+			  "x==1",
+			  "x==2"
+			]
+		  }
+		]
+	  },
+	  {
+		"name": "B03002_RaceHisp",
+		"dims": [
+		  {
+			"var": "RAC1P",
+			"type": "NUM",
+			"conditions": [
+			  "x==1",
+			  "x==2",
+			  "3 <= x & x <=5",
+			  "x==6",
+			  "x==7",
+			  "x==8",
+			  "x==9"
+			]
+		  },
+		  {
+			"var": "HISP",
+			"type": "NUM",
+			"conditions": [
+			  "x==1",
+			  "x > 1"
+			]
+		  },
+		  {
+			"var": "PLACE",
+			"type": "NUM",
+			"conditions": [
+			  "x==1",
+			  "x==2"
+			]
+		  }
+		]
+	  }
+	  ]
+	  }
 	]
 }

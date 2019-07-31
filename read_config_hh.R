@@ -6,7 +6,7 @@ suppressPackageStartupMessages(library(data.table))
 suppressPackageStartupMessages(library(bit64))
 
 # specify the config file name
-config_file <- "reweighting_config.json"
+config_file <- "split_config.json"
 
 # define the generator function to check whether a single record belongs to a table cell
 generator <- function(condition){ # Need to do this because R.

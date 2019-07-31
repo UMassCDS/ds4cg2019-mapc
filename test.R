@@ -5,21 +5,19 @@ suppressPackageStartupMessages(library(readr))
 suppressPackageStartupMessages(library(dplyr))
 
 # source custom functions
-source("algo_hh.R")
+source("split.R")
 
 # read input and base matrix files
 # read the input file
-inp <- data.table::fread(file="POP2016.csv")
+inp <- data.table::fread(file="extract_for_test.csv")
 # read the savefile RData object
 conditions <- read_rds("savefilehh.RData")
 # set the number of iterations
 num_iters <- 350
-# set the update factor
-update_factor <- 0.01
 # set the write flag
 write_flag <- TRUE
 
 # run the algorithm
-weights <- random_descent_hh(inp, conditions, num_iters, update_factor, write_flag)
+geog_split <- split_hh(inp, conditions, num_iters, write_flag)
 # write the weights to file
-data.table::fwrite(weights, file="weights_final.csv")
+data.table::fwrite(geog_split, file="split_final.csv")
