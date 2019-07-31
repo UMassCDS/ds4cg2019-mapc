@@ -53,7 +53,22 @@ split_hh <- function(inp, cond, num_iter, wflag){
     # calculate the initial objective function
     of_val <- calc_objective(targets, baselines)
     print(paste("init ofval: ", of_val))
-    
+    # run the algorithm for num_iter steps
+    for (iter in seq(num_iter)){
+        # store the previous OFVal
+        prev_val <- of_val
+        start_time <- Sys.time()
+        # get a random integer ordering such that main person of the HH is selected
+        r_int <- which(inp$SPORDER == 1)
+        # iterate through the rows
+        for (r in r_int){
+            # store the objective function value
+            of_new <- of_val
+            # get the list of people in the HH
+            child <- cond[["children"]][[r]]
+        }
+    }
+
 
 
     quit()
