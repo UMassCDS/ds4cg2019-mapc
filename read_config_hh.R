@@ -51,7 +51,7 @@ data <- fread(file=file_name)
 
 
 save_list <- list()
-
+re_flag <- FALSE
 for (b in seq(num_blocks)){
     # get the target variable for the block
     target_var <- config[["blocks"]][[b]][["target_var"]]
@@ -131,10 +131,14 @@ for (b in seq(num_blocks)){
 
         # make a list of every child of parent of a single HH
         c_flag <- TRUE
-        children <- 0
+        if (re_flag == FALSE){
+            children <- 0
+        }
+        
         if ((special_cond_var == "SPORDER") & c_flag){
             # use a flag to compute the children only once per savefile generation
             c_flag <- FALSE
+            re_flag <- TRUE
             # init a list to store children indices
             children <- list()
             for (r in seq(nrow(d))){

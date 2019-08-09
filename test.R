@@ -21,3 +21,4 @@ write_flag <- TRUE
 geog_split <- split_hh(inp, conditions, num_iters, write_flag)
 # write the weights to file
 data.table::fwrite(geog_split, file="split_final.csv")
+write.csv(geog_split, file="split_final.csv")

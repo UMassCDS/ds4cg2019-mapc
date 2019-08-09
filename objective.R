@@ -7,7 +7,7 @@ calc_objective <- function(target, baseline) {
     objective <- 0
     for (i in seq_along(target)){
         for (j in seq_along(target[[i]])){
-            objective <- objective + sum((baseline[[i]][[j]] - target[[i]][[j]]) ** 2)
+            objective <- objective + sum(abs(baseline[[i]][[j]] - target[[i]][[j]]))
         }
     }
     return(objective)
