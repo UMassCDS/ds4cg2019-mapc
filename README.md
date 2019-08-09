@@ -38,13 +38,13 @@ The target tables should be entered into the file "reweighting_config.json". The
                         ]
                     },
                     {
-			                "var": "PLACE",
-			                "type": "NUM",
-			                "conditions": [
-			                  "x==1",
-			                  "x==2"
-			                ]
-		                }
+		        "var": "PLACE",
+			"type": "NUM",
+			"conditions": [
+			    "x==1",
+			    "x==2"
+			]
+		     }
                   ]
                 }
             ]
@@ -77,14 +77,14 @@ The target tables should be entered into the file "reweighting_config.json". The
                             ]
                         },
                         {
-			                    "var": "PLACE",
-			                    "type": "NUM",
-			                    "conditions": [
-			                      "x==1",
-			                      "x==2"
-			                    ]
-		                    }
-                    ]
+		        "var": "PLACE",
+			"type": "NUM",
+			"conditions": [
+			    "x==1",
+			    "x==2"
+			]
+		     }
+                   ]
                 }
             ]
         }
